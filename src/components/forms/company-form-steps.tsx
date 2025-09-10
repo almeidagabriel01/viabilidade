@@ -320,20 +320,20 @@ export function CompanyForm() {
               control={form.control as Control<CompanyFormData>}
               name="isMei"
               render={({ field }) => (
-                <FormItem className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl p-6 bg-gradient-to-br from-gray-50/50 to-blue-50/30 dark:from-gray-800/50 dark:to-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300">
-                  <div className="flex flex-row items-center space-x-4 space-y-0">
+                <FormItem className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl p-4 sm:p-6 bg-gradient-to-br from-gray-50/50 to-blue-50/30 dark:from-gray-800/50 dark:to-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300">
+                  <div className="flex flex-row items-start space-x-4 space-y-0">
                     <FormControl>
                       <Checkbox
                         checked={field.value || false}
                         onCheckedChange={field.onChange}
-                        className="h-6 w-6 border-2 border-blue-300 dark:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 rounded-lg transition-all duration-300"
+                        className="h-5 w-5 sm:h-6 sm:w-6 border-2 border-blue-300 dark:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 rounded-lg transition-all duration-300 mt-1 sm:mt-0 shrink-0"
                       />
                     </FormControl>
-                    <div className="space-y-1 leading-none flex-1">
-                      <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300 cursor-pointer">
+                    <div className="space-y-1 leading-none flex-1 min-w-0">
+                      <FormLabel className="text-sm sm:text-base font-semibold text-gray-700 dark:text-gray-300 cursor-pointer block">
                         Microempreendedor Individual (MEI)
                       </FormLabel>
-                      <FormDescription className="text-sm text-gray-500 dark:text-gray-400">
+                      <FormDescription className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                         Marque se a empresa será registrada como MEI
                       </FormDescription>
                     </div>

@@ -83,17 +83,17 @@ export function CompanyDataStep({ control }: CompanyDataStepProps) {
                 Tipo de Empresa
               </FormLabel>
               <FormControl>
-                <div className="flex items-center space-x-3 h-12 px-4 rounded-2xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800">
+                <div className="flex items-start space-x-3 p-4 rounded-2xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 min-h-[3rem]">
                   <Checkbox
                     checked={typeof field.value === 'boolean' ? field.value : false}
                     onCheckedChange={field.onChange}
-                    className="data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
+                    className="data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 mt-0.5 shrink-0"
                   />
                   <div className="flex flex-col">
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 leading-tight">
                       Microempreendedor Individual (MEI)
                     </span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                    <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       Regime simplificado
                     </span>
                   </div>
