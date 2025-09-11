@@ -1,0 +1,55 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import MainLayout from "@/components/layout/main-layout";
+import { PageTransition } from "@/components/layout/page-transition";
+import { LoadingState } from "@/components/result/loading-state";
+import { ResultHeader } from "@/components/result/result-header";
+import { MainResultCard } from "@/components/result/main-result-card";
+import { DetailsRecommendations } from "@/components/result/details-recommendations";
+import { CompanyDataSummary } from "@/components/result/company-data-summary";
+import { ActionButtons } from "@/components/result/action-buttons";
+import { useResultData } from "@/hooks/use-result-data";
+
+
+export default function ResultPage() {
+  const router = useRouter();
+  const { result, isLoading } = useResultData();
+
+  const handleNewAnalysis = () => {
+    router.push('/uso-modelo');
+  };
+
+  const handleBackToForm = () => {
+    router.push('/uso-modelo');
+  };
+
+
+  if (isLoading) {
+    return <LoadingState />;
+  }
+
+  if (!result) return null;
+
+  return (
+    <MainLayout>
+      <PageTransition>
+        <div className="w-full max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <ResultHeader result={result} onBackToForm={handleBackToForm} />
+            <MainResultCard result={result} />
+            <DetailsRecommendations result={result} />
+            <CompanyDataSummary result={result} />
+            <ActionButtons result={result} onNewAnalysis={handleNewAnalysis} />
+          </motion.div>
+        </div>
+      </PageTransition>
+    </MainLayout>
+  );
+}
+

@@ -8,7 +8,6 @@ export interface CompanyData {
   uf: string;
   cnae: string;
   isMei: boolean;
-  socios: number;
   capitalInicial: number;
 }
 
@@ -24,4 +23,29 @@ export interface ViaCEPResponse {
   ddd: string;
   siafi: string;
   erro?: boolean;
+}
+
+export type AnalysisResultType = 
+  | "positive" 
+  | "negative" 
+  | "inadequate_use" 
+  | "excessive_use";
+
+export interface AnalysisResult {
+  type: AnalysisResultType;
+  title: string;
+  description: string;
+  details?: string[];
+  recommendations?: string[];
+  icon: string;
+  color: string;
+  bgColor: string;
+}
+
+export interface AnalysisResponse {
+  result: AnalysisResult;
+  companyData: CompanyData;
+  analysisDate: string;
+  testCount?: number;
+  maxTests?: number;
 }

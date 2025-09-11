@@ -137,7 +137,8 @@ export function Sidebar({ className }: SidebarProps) {
               {/* Current page indicator */}
               <div className="hidden xs:block">
                 {menuItems.map((item) => {
-                  if (pathname === item.href) {
+                  const isActive = pathname === item.href || (item.href === '/uso-modelo' && pathname === '/resultado');
+                  if (isActive) {
                     const Icon = item.icon;
                     return (
                       <div key={item.href} className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 text-sm font-medium">
@@ -211,7 +212,7 @@ export function Sidebar({ className }: SidebarProps) {
                 <div className="p-4 space-y-2">
                   {menuItems.map((item) => {
                     const Icon = item.icon;
-                    const isActive = pathname === item.href;
+                    const isActive = pathname === item.href || (item.href === '/uso-modelo' && pathname === '/resultado');
 
                     return (
                       <Link
@@ -340,7 +341,7 @@ export function Sidebar({ className }: SidebarProps) {
         )}>
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href;
+            const isActive = pathname === item.href || (item.href === '/uso-modelo' && pathname === '/resultado');
             
             const linkElement = (
               <Link 
