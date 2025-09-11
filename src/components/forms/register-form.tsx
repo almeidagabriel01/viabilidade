@@ -13,6 +13,7 @@ import { Control, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 import { Input, PasswordInput } from "@/components/ui/input";
+import { PhoneInput } from "../ui/phone-input";
 
 const registerFormSchema = z
   .object({
@@ -48,7 +49,7 @@ const registerFormSchema = z
 
 type RegisterFormData = z.infer<typeof registerFormSchema>;
 
-const RegisterForm: React.FC = () => {
+export default function RegisterForm() {
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
@@ -169,8 +170,8 @@ const RegisterForm: React.FC = () => {
                           Telefone
                         </FormLabel>
                         <FormControl>
-                          <Input
-                            placeholder="(11) 99999-9999"
+                          <PhoneInput
+                            placeholder="Digite seu telefone"
                             className="h-12 text-base"
                             value={field.value || ""}
                             onChange={field.onChange}
@@ -369,6 +370,4 @@ const RegisterForm: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default RegisterForm;
+}
