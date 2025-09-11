@@ -92,7 +92,7 @@ const LoginForm: React.FC = () => {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300 bg-gray-50">
+                        <FormLabel className="text-base font-semibold text-blue-900 dark:text-gray-300 bg-gray-50">
                           Email
                         </FormLabel>
                         <FormControl>
@@ -114,7 +114,7 @@ const LoginForm: React.FC = () => {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-base font-semibold text-gray-700 dark:text-gray-300 bg-gray-50">
+                        <FormLabel className="text-base font-semibold text-blue-900 dark:text-gray-300 bg-gray-50">
                           Senha
                         </FormLabel>
                         <FormControl>
@@ -157,7 +157,7 @@ const LoginForm: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full bg-blue-900 text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Entrar
                 </button>
@@ -180,7 +180,7 @@ const LoginForm: React.FC = () => {
       </div>
 
       {/* Right Panel - Decorative */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 right-20 w-64 h-64 border-2 border-white rounded-full"></div>
           <div className="absolute top-32 right-32 w-48 h-48 border-2 border-white rounded-full"></div>
