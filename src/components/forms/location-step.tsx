@@ -33,18 +33,27 @@ export function LocationStep({ control, setValue, cepValue }: LocationStepProps)
   // Auto-completar endereço quando CEP for inserido
   useEffect(() => {
     const handleCepLookup = async () => {
-      if (cepValue && cepValue.replace(/\D/g, '').length === 8) {
+      const cleanCep = cepValue?.replace(/\D/g, '') || '';
+      
+      if (cleanCep.length === 8) {
+        console.log('Buscando CEP:', cleanCep); // Debug
         const data = await fetchCepData(cepValue);
-        if (data) {
+        
+        if (data && !data.erro) {
+          console.log('Dados encontrados:', data); // Debug
           setValue('rua', data.logradouro || '');
           setValue('bairro', data.bairro || '');
           setValue('cidade', data.localidade || '');
           setValue('uf', data.uf || '');
+        } else {
+          console.log('CEP não encontrado ou erro na API'); // Debug
         }
       }
     };
 
-    handleCepLookup();
+    // Debounce para evitar muitas chamadas
+    const timeoutId = setTimeout(handleCepLookup, 500);
+    return () => clearTimeout(timeoutId);
   }, [cepValue, setValue]);
 
   return (
