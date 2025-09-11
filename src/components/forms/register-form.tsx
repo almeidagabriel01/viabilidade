@@ -120,13 +120,13 @@ export default function RegisterForm() {
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-base font-semibold text-blue-900 dark:text-gray-300 bg-gray-50">
+                        <FormLabel className="text-base font-semibold text-blue-900 dark:text-gray-300">
                           Nome completo
                         </FormLabel>
                         <FormControl>
                           <Input
                             placeholder="Digite seu nome completo"
-                            className="h-12 text-base"
+                            className="h-12 text-base bg-gray-50"
                             value={field.value || ""}
                             onChange={field.onChange}
                             onBlur={field.onBlur}
@@ -143,13 +143,13 @@ export default function RegisterForm() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-base font-semibold text-blue-900 dark:text-gray-300 bg-gray-50">
+                        <FormLabel className="text-base font-semibold text-blue-900 dark:text-gray-300">
                           Email
                         </FormLabel>
                         <FormControl>
                           <Input
                             placeholder="Digite seu email"
-                            className="h-12 text-base"
+                            className="h-12 text-base bg-gray-50"
                             value={field.value || ""}
                             onChange={field.onChange}
                             onBlur={field.onBlur}
@@ -166,13 +166,13 @@ export default function RegisterForm() {
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-base font-semibold text-blue-900 dark:text-gray-300 bg-gray-50">
+                        <FormLabel className="text-base font-semibold text-blue-900 dark:text-gray-300">
                           Telefone
                         </FormLabel>
                         <FormControl>
                           <PhoneInput
                             placeholder="Digite seu telefone"
-                            className="h-12 text-base"
+                            className="h-12 text-base bg-gray-50"
                             value={field.value || ""}
                             onChange={field.onChange}
                             onBlur={field.onBlur}
@@ -189,13 +189,13 @@ export default function RegisterForm() {
                     name="company"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-base font-semibold text-blue-900 dark:text-gray-300 bg-gray-50">
+                        <FormLabel className="text-base font-semibold text-blue-900 dark:text-gray-300">
                           Nome da empresa
                         </FormLabel>
                         <FormControl>
                           <Input
                             placeholder="Digite o nome da sua empresa"
-                            className="h-12 text-base"
+                            className="h-12 text-base bg-gray-50"
                             value={field.value || ""}
                             onChange={field.onChange}
                             onBlur={field.onBlur}
@@ -212,13 +212,13 @@ export default function RegisterForm() {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-base font-semibold text-blue-900 dark:text-gray-300 bg-gray-50">
+                        <FormLabel className="text-base font-semibold text-blue-900 dark:text-gray-300">
                           Senha
                         </FormLabel>
                         <FormControl>
                           <PasswordInput
                             placeholder="Digite sua senha"
-                            className="h-12 text-base"
+                            className="h-12 text-base bg-gray-50"
                             value={field.value || ""}
                             onChange={field.onChange}
                             onBlur={field.onBlur}
@@ -235,13 +235,13 @@ export default function RegisterForm() {
                     name="confirmPassword"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-base font-semibold text-blue-900 dark:text-gray-300 bg-gray-50">
+                        <FormLabel className="text-base font-semibold text-blue-900 dark:text-gray-300">
                           Confirmar senha
                         </FormLabel>
                         <FormControl>
                           <PasswordInput
                             placeholder="Confirme sua senha"
-                            className="h-12 text-base"
+                            className="h-12 text-base bg-gray-50"
                             value={field.value || ""}
                             onChange={field.onChange}
                             onBlur={field.onBlur}
