@@ -92,13 +92,13 @@ const LoginForm: React.FC = () => {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-base font-semibold text-blue-900 dark:text-gray-300 bg-gray-50">
+                        <FormLabel className="text-base font-semibold text-blue-900 dark:text-gray-300">
                           Email
                         </FormLabel>
                         <FormControl>
                           <Input
                             placeholder="Digite seu email"
-                            className="h-12 text-base"
+                            className="h-12 text-base bg-gray-50"
                             value={field.value || ""}
                             onChange={field.onChange}
                             onBlur={field.onBlur}
@@ -114,13 +114,13 @@ const LoginForm: React.FC = () => {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-base font-semibold text-blue-900 dark:text-gray-300 bg-gray-50">
+                        <FormLabel className="text-base font-semibold text-blue-900 dark:text-gray-300">
                           Senha
                         </FormLabel>
                         <FormControl>
                           <PasswordInput
                             placeholder="Digite sua senha"
-                            className="h-12 text-base"
+                            className="h-12 text-base bg-gray-50"
                             value={field.value || ""}
                             onChange={field.onChange}
                             onBlur={field.onBlur}
