@@ -78,8 +78,8 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="min-h-screen flex">
-      <div className="w-full lg:w-1/2 bg-white flex flex-col justify-center px-8 sm:px-12 lg:px-8 xl:px-8">
+    <div className="min-h-screen flex bg-white dark:bg-gray-950">
+      <div className="w-full lg:w-1/2 bg-white dark:bg-gray-950 flex flex-col justify-center px-8 sm:px-12 lg:px-8 xl:px-8">
         <div className="max-w-md mx-auto w-full mt-10">
           <div className="flex items-center space-x-2 lg:space-x-3 mb-12">
             <div className="relative">
@@ -99,10 +99,10 @@ export default function RegisterForm() {
           </div>
 
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
               Criar conta
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-400">
               Preencha os dados abaixo para começar sua análise de viabilidade
             </p>
           </div>
@@ -126,7 +126,7 @@ export default function RegisterForm() {
                         <FormControl>
                           <Input
                             placeholder="Digite seu nome completo"
-                            className="h-12 text-base bg-gray-50"
+                            className="h-12 text-base bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                             value={field.value || ""}
                             onChange={field.onChange}
                             onBlur={field.onBlur}
@@ -149,7 +149,7 @@ export default function RegisterForm() {
                         <FormControl>
                           <Input
                             placeholder="Digite seu email"
-                            className="h-12 text-base bg-gray-50"
+                            className="h-12 text-base bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                             value={field.value || ""}
                             onChange={field.onChange}
                             onBlur={field.onBlur}
@@ -172,7 +172,7 @@ export default function RegisterForm() {
                         <FormControl>
                           <PhoneInput
                             placeholder="Digite seu telefone"
-                            className="h-12 text-base bg-gray-50"
+                            className="h-12 text-base bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                             value={field.value || ""}
                             onChange={field.onChange}
                             onBlur={field.onBlur}
@@ -195,7 +195,7 @@ export default function RegisterForm() {
                         <FormControl>
                           <Input
                             placeholder="Digite o nome da sua empresa"
-                            className="h-12 text-base bg-gray-50"
+                            className="h-12 text-base bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                             value={field.value || ""}
                             onChange={field.onChange}
                             onBlur={field.onBlur}
@@ -218,7 +218,7 @@ export default function RegisterForm() {
                         <FormControl>
                           <PasswordInput
                             placeholder="Digite sua senha"
-                            className="h-12 text-base bg-gray-50"
+                            className="h-12 text-base bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                             value={field.value || ""}
                             onChange={field.onChange}
                             onBlur={field.onBlur}
@@ -241,7 +241,7 @@ export default function RegisterForm() {
                         <FormControl>
                           <PasswordInput
                             placeholder="Confirme sua senha"
-                            className="h-12 text-base bg-gray-50"
+                            className="h-12 text-base bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                             value={field.value || ""}
                             onChange={field.onChange}
                             onBlur={field.onBlur}
@@ -259,24 +259,24 @@ export default function RegisterForm() {
                     id="terms"
                     name="terms"
                     type="checkbox"
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-1"
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded mt-1 bg-white dark:bg-gray-800"
                     required
                   />
                   <label
                     htmlFor="terms"
-                    className="ml-2 block text-sm text-gray-700"
+                    className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
                   >
                     Eu concordo com os{" "}
                     <a
                       href="#"
-                      className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
                     >
                       Termos de Uso
                     </a>{" "}
                     e{" "}
                     <a
                       href="#"
-                      className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
                     >
                       Política de Privacidade
                     </a>
@@ -285,7 +285,7 @@ export default function RegisterForm() {
 
                 <button
                   type="submit"
-                  className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full bg-blue-600 dark:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 dark:hover:bg-purple-800 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-950 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Criar conta
                 </button>
@@ -293,12 +293,12 @@ export default function RegisterForm() {
             </form>
           </Form>
 
-          <div className="mt-8 text-center">
-            <p className="text-gray-600">
+          <div className="mt-8 text-center mb-8">
+            <p className="text-gray-600 dark:text-gray-400">
               Já tem uma conta?{" "}
               <a
                 href="/login"
-                className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
               >
                 Entre aqui
               </a>
@@ -308,46 +308,58 @@ export default function RegisterForm() {
       </div>
 
       {/* Right Panel - Decorative */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-20 w-64 h-64 border-2 border-white rounded-full"></div>
-          <div className="absolute top-32 left-32 w-48 h-48 border-2 border-white rounded-full"></div>
-          <div className="absolute top-44 left-44 w-32 h-32 border-2 border-white rounded-full"></div>
-          <div className="absolute top-56 left-56 w-16 h-16 border-2 border-white rounded-full"></div>
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 dark:from-gray-950 dark:via-blue-950 dark:to-purple-950 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10 dark:opacity-5">
+          <div className="absolute top-20 left-20 w-64 h-64 border-2 border-white dark:border-gray-300 rounded-full"></div>
+          <div className="absolute top-32 left-32 w-48 h-48 border-2 border-white dark:border-gray-300 rounded-full"></div>
+          <div className="absolute top-44 left-44 w-32 h-32 border-2 border-white dark:border-gray-300 rounded-full"></div>
+          <div className="absolute top-56 left-56 w-16 h-16 border-2 border-white dark:border-gray-300 rounded-full"></div>
         </div>
 
         <div className="flex flex-col justify-center items-center text-white p-12 relative w-full">
           <div className="max-w-md text-center">
-            <h3 className="text-3xl font-bold mb-6">
+            <h3 className="text-3xl font-bold mb-6 text-white dark:text-gray-100">
               Comece Sua Jornada Empresarial
             </h3>
-            <p className="text-green-100 text-lg mb-8 leading-relaxed">
+            <p className="text-green-100 dark:text-blue-100 text-lg mb-8 leading-relaxed">
               Junte-se à nossa plataforma e tenha acesso a análises detalhadas
               de viabilidade empresarial baseadas em dados reais de mercado.
             </p>
             <div className="flex justify-center space-x-4 opacity-80">
               <div className="text-center">
-                <div className="text-2xl font-bold">500+</div>
-                <div className="text-sm text-green-200">Empresas</div>
+                <div className="text-2xl font-bold text-white dark:text-gray-100">
+                  500+
+                </div>
+                <div className="text-sm text-green-200 dark:text-blue-200">
+                  Empresas
+                </div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold">95%</div>
-                <div className="text-sm text-green-200">Precisão</div>
+                <div className="text-2xl font-bold text-white dark:text-gray-100">
+                  95%
+                </div>
+                <div className="text-sm text-green-200 dark:text-blue-200">
+                  Precisão
+                </div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold">24h</div>
-                <div className="text-sm text-green-200">Análise</div>
+                <div className="text-2xl font-bold text-white dark:text-gray-100">
+                  24h
+                </div>
+                <div className="text-sm text-green-200 dark:text-blue-200">
+                  Análise
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="absolute bottom-0 left-0 opacity-30">
+        <div className="absolute bottom-0 left-0 opacity-30 dark:opacity-20">
           <svg
             width="400"
             height="280"
             viewBox="0 0 400 280"
-            className="text-white h-full"
+            className="text-white dark:text-gray-300 h-full"
           >
             <defs>
               <pattern
