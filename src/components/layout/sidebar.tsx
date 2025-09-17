@@ -2,17 +2,15 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
-import { 
-  Home, 
-  Building2,
-  Menu,
-  X,
-  ChevronLeft
-} from "lucide-react";
+import { Home, Building2, Menu, X, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -45,7 +43,7 @@ export function Sidebar({ className }: SidebarProps) {
   const toggleMobile = () => {
     setIsMobileOpen(!isMobileOpen);
   };
-  
+
   const toggleDesktop = () => {
     setIsDesktopCollapsed(!isDesktopCollapsed);
   };
@@ -62,21 +60,21 @@ export function Sidebar({ className }: SidebarProps) {
     const checkIsDesktop = () => {
       const desktop = window.innerWidth >= 1024;
       setIsDesktop(desktop);
-      
+
       // Se mudou para mobile, feche o menu desktop
       if (!desktop && isDesktopCollapsed) {
         setIsDesktopCollapsed(false);
       }
-      
+
       // Se mudou para desktop, feche o menu mobile
       if (desktop && isMobileOpen) {
         setIsMobileOpen(false);
       }
     };
-    
+
     checkIsDesktop();
-    window.addEventListener('resize', checkIsDesktop);
-    return () => window.removeEventListener('resize', checkIsDesktop);
+    window.addEventListener("resize", checkIsDesktop);
+    return () => window.removeEventListener("resize", checkIsDesktop);
   }, [isDesktopCollapsed, isMobileOpen]);
 
   // Click outside handler for mobile
@@ -130,18 +128,23 @@ export function Sidebar({ className }: SidebarProps) {
                   <Building2 className="h-4 w-4 text-white" />
                 </div>
                 <span className="text-lg font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent">
-                  Análise de Viabilidade
+                  {pathname === "/perfil" ? "Perfil" : "Análise de Viabilidade"}
                 </span>
               </Link>
 
               {/* Current page indicator */}
               <div className="hidden xs:block">
                 {menuItems.map((item) => {
-                  const isActive = pathname === item.href || (item.href === '/uso-modelo' && pathname === '/resultado');
+                  const isActive =
+                    pathname === item.href ||
+                    (item.href === "/uso-modelo" && pathname === "/resultado");
                   if (isActive) {
                     const Icon = item.icon;
                     return (
-                      <div key={item.href} className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 text-sm font-medium">
+                      <div
+                        key={item.href}
+                        className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 text-sm font-medium"
+                      >
                         <Icon className="h-4 w-4" />
                         <span>{item.title}</span>
                       </div>
@@ -212,7 +215,10 @@ export function Sidebar({ className }: SidebarProps) {
                 <div className="p-4 space-y-2">
                   {menuItems.map((item) => {
                     const Icon = item.icon;
-                    const isActive = pathname === item.href || (item.href === '/uso-modelo' && pathname === '/resultado');
+                    const isActive =
+                      pathname === item.href ||
+                      (item.href === "/uso-modelo" &&
+                        pathname === "/resultado");
 
                     return (
                       <Link
@@ -293,7 +299,7 @@ export function Sidebar({ className }: SidebarProps) {
         }}
         transition={{
           duration: 0.4,
-          ease: [0.25, 0.1, 0.25, 1]
+          ease: [0.25, 0.1, 0.25, 1],
         }}
         className={cn(
           "relative h-full bg-white/95 dark:bg-gray-950/95 backdrop-blur-sm border-r border-gray-200 dark:border-gray-800 shadow-lg overflow-hidden flex flex-col",
@@ -303,25 +309,35 @@ export function Sidebar({ className }: SidebarProps) {
         {/* Header */}
         <div className="flex h-16 items-center justify-between px-4 border-b border-gray-200 dark:border-gray-800 relative">
           {/* Logo and Title */}
-          <div className={cn(
-            "flex items-center transition-all duration-[400ms] ease-out",
-            isDesktopCollapsed && "justify-center"
-          )}>
+          <div
+            className={cn(
+              "flex items-center transition-all duration-[400ms] ease-out",
+              isDesktopCollapsed && "justify-center"
+            )}
+          >
             <Building2 className="h-8 w-8 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-            
-            <span className={cn(
-              "text-xl font-bold text-gray-800 dark:text-gray-200 whitespace-nowrap transition-all duration-[400ms] ease-out ml-3",
-              isDesktopCollapsed ? "opacity-0 w-0 ml-0" : "opacity-100 w-auto ml-3"
-            )}>
+
+            <span
+              className={cn(
+                "text-xl font-bold text-gray-800 dark:text-gray-200 whitespace-nowrap transition-all duration-[400ms] ease-out ml-3",
+                isDesktopCollapsed
+                  ? "opacity-0 w-0 ml-0"
+                  : "opacity-100 w-auto ml-3"
+              )}
+            >
               Viabilidade
             </span>
           </div>
 
           {/* Control Buttons */}
-          <div className={cn(
-            "flex items-center space-x-2 transition-all duration-[400ms] ease-out",
-            isDesktopCollapsed ? "opacity-0 scale-95" : "opacity-100 scale-100"
-          )}>
+          <div
+            className={cn(
+              "flex items-center space-x-2 transition-all duration-[400ms] ease-out",
+              isDesktopCollapsed
+                ? "opacity-0 scale-95"
+                : "opacity-100 scale-100"
+            )}
+          >
             {/* Desktop collapse button */}
             <Button
               variant="ghost"
@@ -335,35 +351,44 @@ export function Sidebar({ className }: SidebarProps) {
         </div>
 
         {/* Navigation */}
-        <nav className={cn(
-          "flex-1 space-y-2",
-          isDesktopCollapsed ? "p-2" : "p-4"
-        )}>
+        <nav
+          className={cn("flex-1 space-y-2", isDesktopCollapsed ? "p-2" : "p-4")}
+        >
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href || (item.href === '/uso-modelo' && pathname === '/resultado');
-            
+            const isActive =
+              pathname === item.href ||
+              (item.href === "/uso-modelo" && pathname === "/resultado");
+
             const linkElement = (
-              <Link 
+              <Link
                 key={item.href}
-                href={item.href} 
+                href={item.href}
                 className={cn(
                   "flex items-center rounded-xl text-sm font-medium transition-all duration-[400ms] ease-out cursor-pointer group",
                   isActive
                     ? "bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
                     : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200 hover:scale-105",
-                  isDesktopCollapsed ? "justify-center p-3 mx-auto w-12 h-12" : "px-4 py-3"
+                  isDesktopCollapsed
+                    ? "justify-center p-3 mx-auto w-12 h-12"
+                    : "px-4 py-3"
                 )}
               >
-                <Icon className={cn(
-                  "flex-shrink-0",
-                  isDesktopCollapsed ? "h-6 w-6" : "h-5 w-5"
-                )} />
-                
-                <span className={cn(
-                  "truncate transition-all duration-[400ms] ease-out ml-3",
-                  isDesktopCollapsed ? "opacity-0 w-0 ml-0" : "opacity-100 w-auto ml-3"
-                )}>
+                <Icon
+                  className={cn(
+                    "flex-shrink-0",
+                    isDesktopCollapsed ? "h-6 w-6" : "h-5 w-5"
+                  )}
+                />
+
+                <span
+                  className={cn(
+                    "truncate transition-all duration-[400ms] ease-out ml-3",
+                    isDesktopCollapsed
+                      ? "opacity-0 w-0 ml-0"
+                      : "opacity-100 w-auto ml-3"
+                  )}
+                >
                   {item.title}
                 </span>
               </Link>
@@ -373,9 +398,7 @@ export function Sidebar({ className }: SidebarProps) {
             if (isDesktopCollapsed) {
               return (
                 <Tooltip key={item.href}>
-                  <TooltipTrigger asChild>
-                    {linkElement}
-                  </TooltipTrigger>
+                  <TooltipTrigger asChild>{linkElement}</TooltipTrigger>
                   <TooltipContent side="right" className="z-[9999]">
                     <p>{item.title}</p>
                   </TooltipContent>
@@ -389,18 +412,22 @@ export function Sidebar({ className }: SidebarProps) {
 
         {/* Footer */}
         <div className="border-t border-gray-200 dark:border-gray-800 p-4">
-          <div className={cn(
-            "flex items-center transition-all duration-[400ms] ease-out",
-            isDesktopCollapsed ? "justify-center" : "justify-between"
-          )}>
-            <div className={cn(
-              "text-xs text-gray-500 dark:text-gray-400 transition-all duration-[400ms] ease-out",
-              isDesktopCollapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
-            )}>
+          <div
+            className={cn(
+              "flex items-center transition-all duration-[400ms] ease-out",
+              isDesktopCollapsed ? "justify-center" : "justify-between"
+            )}
+          >
+            <div
+              className={cn(
+                "text-xs text-gray-500 dark:text-gray-400 transition-all duration-[400ms] ease-out",
+                isDesktopCollapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
+              )}
+            >
               <p>© 2025 Viabilidade</p>
               <p>Versão 1.0.0</p>
             </div>
-            
+
             <ThemeToggle />
           </div>
         </div>

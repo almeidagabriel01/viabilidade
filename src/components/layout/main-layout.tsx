@@ -15,22 +15,27 @@ function MainLayout({ children }: MainLayoutProps) {
     const checkIsDesktop = () => {
       setIsDesktop(window.innerWidth >= 1024);
     };
-    
+
     checkIsDesktop();
-    window.addEventListener('resize', checkIsDesktop);
-    return () => window.removeEventListener('resize', checkIsDesktop);
+    window.addEventListener("resize", checkIsDesktop);
+    return () => window.removeEventListener("resize", checkIsDesktop);
   }, []);
+
+  // Detecta se está na página de perfil
+  const isProfilePage =
+    typeof window !== "undefined" &&
+    window.location.pathname.includes("/perfil");
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 overflow-hidden">
       {/* Unified Sidebar/Navbar */}
       <Sidebar />
-      
+
       <main className="flex-1 flex flex-col overflow-hidden">
         <div className="flex-1 overflow-y-auto">
           <div className="min-h-full">
             {/* Desktop Title */}
-            {isDesktop && (
+            {isDesktop && !isProfilePage && (
               <div className="px-8 pt-6 pb-2">
                 <div className="flex items-center space-x-3 mb-6">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-indigo-700 shadow-md">
@@ -47,9 +52,13 @@ function MainLayout({ children }: MainLayoutProps) {
                 </div>
               </div>
             )}
-            
+
             {/* Container para o formulário */}
-            <div className={`container mx-auto py-6 px-4 lg:px-8 max-w-6xl ${!isDesktop ? 'pt-2' : ''}`}>
+            <div
+              className={`container mx-auto py-6 px-4 lg:px-8 max-w-6xl ${
+                !isDesktop ? "pt-2" : ""
+              }`}
+            >
               {children}
             </div>
           </div>
