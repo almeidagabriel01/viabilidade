@@ -100,9 +100,9 @@ export function SidebarUserDropdown({ isCollapsed }: SidebarUserDropdownProps) {
       {/* Dropdown */}
       <div className={cn(
         "absolute z-50 transform transition-all duration-500 ease-out",
-        "w-56 sm:w-64",
+        "w-56 sm:w-52",
         "left-1/2 -translate-x-1/2 bottom-12",
-        "max-w-[calc(100vw-2rem)] sm:max-w-[calc(100vw-6rem)]",
+        "max-w-[calc(100vw-2rem)] sm:max-w-[calc(100vw-8rem)]",
         "ml-1 sm:ml-4",
         isOpen 
           ? 'opacity-100 scale-100 translate-y-0' 
