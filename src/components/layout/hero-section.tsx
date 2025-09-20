@@ -7,6 +7,7 @@ import { CardContent } from "@/components/ui/card";
 import { AdvancedButton } from "@/components/ui/advanced-button";
 import { AdvancedCard } from "@/components/ui/advanced-card";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { UserDropdown } from "@/components/ui/user-dropdown";
 
 export function HeroSection() {
 
@@ -83,19 +84,8 @@ export function HeroSection() {
                 </Button>
               </Link>
               
-              {/* Desktop CTA Button */}
-              <Link href="/uso-modelo" className="hidden lg:block">
-                <Button 
-                  size="lg" 
-                  className="relative bg-gradient-to-r from-blue-500 via-blue-600 to-purple-600 hover:from-blue-600 hover:via-blue-700 hover:to-purple-700 text-white font-semibold px-8 py-3 rounded-2xl shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 hover:scale-105 border-0 overflow-hidden group"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <span className="relative flex items-center space-x-2">
-                    <Building2 className="h-5 w-5" />
-                    <span>Começar Análise</span>
-                  </span>
-                </Button>
-              </Link>
+              {/* User Dropdown */}
+              <UserDropdown />
               
               <div className="relative">
                 <ThemeToggle />

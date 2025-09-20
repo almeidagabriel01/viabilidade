@@ -35,7 +35,7 @@ export async function analyzeViability(companyData: CompanyData): Promise<Analys
     };
   }
 
-  if (!isValidCompanyData(companyData)) {
+  if (!isValidCompanyData()) {
     return {
       result: {
         type: "inadequate_use",
@@ -118,7 +118,7 @@ export async function analyzeViability(companyData: CompanyData): Promise<Analys
   };
 }
 
-function isValidCompanyData(data: CompanyData): boolean {
+function isValidCompanyData(): boolean {
   return Math.random() > 0.1;
 }
 

@@ -13,6 +13,8 @@ import { Control, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 import { Input, PasswordInput } from "@/components/ui/input";
+import { useAuth } from "@/contexts/auth-context";
+import { useRouter } from "next/navigation";
 
 const loginFormSchema = z.object({
   email: z.string().min(1, "Email é obrigatório").email("Email inválido"),
@@ -28,6 +30,8 @@ const loginFormSchema = z.object({
 type LoginFormData = z.infer<typeof loginFormSchema>;
 
 const LoginForm: React.FC = () => {
+  const { login } = useAuth();
+  const router = useRouter();
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -38,16 +42,24 @@ const LoginForm: React.FC = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      // TODO: Implementar chamada para API
-      // const result = await analyzeViability(data);
+      // Simular login - em um sistema real, aqui seria feita a chamada para a API
       console.log("Form data:", data);
 
-      // Por enquanto, apenas log dos dados
-      alert(
-        "Formulário enviado com sucesso! Verifique o console para ver os dados."
-      );
-    } catch {
-      alert("Erro ao enviar formulário. Tente novamente.");
+      // Simular dados do usuário (em um sistema real, viria da API)
+      const userData = {
+        id: "1",
+        name: data.email.split("@")[0], // Usar parte do email como nome
+        email: data.email,
+      };
+
+      // Fazer login
+      login(userData);
+
+      // Redirecionar para a página inicial
+      router.push("/");
+    } catch (error) {
+      console.error("Erro ao fazer login:", error);
+      alert("Erro ao fazer login. Tente novamente.");
     }
   };
 

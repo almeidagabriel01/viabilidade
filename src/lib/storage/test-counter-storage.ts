@@ -36,9 +36,39 @@ export function resetSystem(): void {
 }
 
 if (typeof window !== 'undefined') {
-  (window as any).getTestCount = getTestCount;
-  (window as any).incrementTestCount = incrementTestCount;
-  (window as any).resetTestCount = resetTestCount;
-  (window as any).isTestLimitReached = isTestLimitReached;
-  (window as any).resetSystem = resetSystem;
+  (window as Window & typeof globalThis & {
+    getTestCount: typeof getTestCount;
+    incrementTestCount: typeof incrementTestCount;
+    resetTestCount: typeof resetTestCount;
+    isTestLimitReached: typeof isTestLimitReached;
+    resetSystem: typeof resetSystem;
+  }).getTestCount = getTestCount;
+  (window as Window & typeof globalThis & {
+    getTestCount: typeof getTestCount;
+    incrementTestCount: typeof incrementTestCount;
+    resetTestCount: typeof resetTestCount;
+    isTestLimitReached: typeof isTestLimitReached;
+    resetSystem: typeof resetSystem;
+  }).incrementTestCount = incrementTestCount;
+  (window as Window & typeof globalThis & {
+    getTestCount: typeof getTestCount;
+    incrementTestCount: typeof incrementTestCount;
+    resetTestCount: typeof resetTestCount;
+    isTestLimitReached: typeof isTestLimitReached;
+    resetSystem: typeof resetSystem;
+  }).resetTestCount = resetTestCount;
+  (window as Window & typeof globalThis & {
+    getTestCount: typeof getTestCount;
+    incrementTestCount: typeof incrementTestCount;
+    resetTestCount: typeof resetTestCount;
+    isTestLimitReached: typeof isTestLimitReached;
+    resetSystem: typeof resetSystem;
+  }).isTestLimitReached = isTestLimitReached;
+  (window as Window & typeof globalThis & {
+    getTestCount: typeof getTestCount;
+    incrementTestCount: typeof incrementTestCount;
+    resetTestCount: typeof resetTestCount;
+    isTestLimitReached: typeof isTestLimitReached;
+    resetSystem: typeof resetSystem;
+  }).resetSystem = resetSystem;
 }

@@ -42,7 +42,7 @@ export function useCompanyForm() {
       console.log(`Teste ${newTestCount} iniciado`);
       
       storeFormData(data);
-      const result = await analyzeViability(data);
+      await analyzeViability(data);
       router.push('/resultado');
     } catch (error) {
       console.error('Erro ao enviar formulário:', error);

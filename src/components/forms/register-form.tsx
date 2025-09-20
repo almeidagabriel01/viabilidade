@@ -14,6 +14,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 import { Input, PasswordInput } from "@/components/ui/input";
 import { PhoneInput } from "../ui/phone-input";
+import { useAuth } from "@/contexts/auth-context";
+import { useRouter } from "next/navigation";
 
 const registerFormSchema = z
   .object({
@@ -50,6 +52,8 @@ const registerFormSchema = z
 type RegisterFormData = z.infer<typeof registerFormSchema>;
 
 export default function RegisterForm() {
+  const { login } = useAuth();
+  const router = useRouter();
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
@@ -64,15 +68,23 @@ export default function RegisterForm() {
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      // TODO: Implementar chamada para API
-      // const result = await registerUser(data);
+      // Simular cadastro - em um sistema real, aqui seria feita a chamada para a API
       console.log("Form data:", data);
 
-      // Por enquanto, apenas log dos dados
-      alert(
-        "Cadastro realizado com sucesso! Verifique o console para ver os dados."
-      );
-    } catch {
+      // Simular dados do usuário (em um sistema real, viria da API)
+      const userData = {
+        id: "1",
+        name: data.name,
+        email: data.email,
+      };
+
+      // Fazer login automaticamente após cadastro
+      login(userData);
+
+      // Redirecionar para a página inicial
+      router.push("/");
+    } catch (error) {
+      console.error("Erro ao realizar cadastro:", error);
       alert("Erro ao realizar cadastro. Tente novamente.");
     }
   };
