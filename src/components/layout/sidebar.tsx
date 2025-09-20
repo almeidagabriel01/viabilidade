@@ -6,6 +6,8 @@ import { Home, Building2, Menu, X, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { SidebarUserDropdown } from "@/components/ui/sidebar-user-dropdown";
+import { UserDropdown } from "@/components/ui/user-dropdown";
 import {
   Tooltip,
   TooltipContent,
@@ -154,8 +156,10 @@ export function Sidebar({ className }: SidebarProps) {
                 })}
               </div>
 
-              {/* Right section with Theme Toggle and Mobile Menu */}
-              <div className="flex items-center space-x-3">
+              {/* Right section with User Dropdown, Theme Toggle and Mobile Menu */}
+              <div className="flex items-center space-x-2">
+                <UserDropdown />
+
                 <ThemeToggle />
 
                 {/* Mobile menu button */}
@@ -244,13 +248,6 @@ export function Sidebar({ className }: SidebarProps) {
                       </Link>
                     );
                   })}
-                </div>
-
-                {/* Footer */}
-                <div className="border-t border-gray-200 dark:border-gray-800 p-4 bg-gray-50/50 dark:bg-gray-900/50">
-                  <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                    <p>© 2025 Viabilidade • Versão 1.0.0</p>
-                  </div>
                 </div>
               </div>
             </motion.div>
@@ -415,19 +412,10 @@ export function Sidebar({ className }: SidebarProps) {
           <div
             className={cn(
               "flex items-center transition-all duration-[400ms] ease-out",
-              isDesktopCollapsed ? "justify-center" : "justify-between"
+              isDesktopCollapsed ? "justify-center space-y-2 flex-col" : "justify-center space-x-2"
             )}
           >
-            <div
-              className={cn(
-                "text-xs text-gray-500 dark:text-gray-400 transition-all duration-[400ms] ease-out",
-                isDesktopCollapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
-              )}
-            >
-              <p>© 2025 Viabilidade</p>
-              <p>Versão 1.0.0</p>
-            </div>
-
+            <SidebarUserDropdown isCollapsed={isDesktopCollapsed} />
             <ThemeToggle />
           </div>
         </div>

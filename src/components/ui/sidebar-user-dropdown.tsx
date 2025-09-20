@@ -5,8 +5,13 @@ import Link from 'next/link';
 import { User, LogOut, Settings, ChevronDown, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
-export function UserDropdown() {
+interface SidebarUserDropdownProps {
+  isCollapsed: boolean;
+}
+
+export function SidebarUserDropdown({ isCollapsed }: SidebarUserDropdownProps) {
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -46,13 +51,20 @@ export function UserDropdown() {
       <Link href="/login">
         <Button 
           size="sm"
-          className="group relative bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold px-4 py-2 rounded-xl shadow-lg hover:shadow-blue-500/25 transition-all duration-300 hover:scale-105 border-0 text-xs overflow-hidden"
+          className={cn(
+            "group relative bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-blue-500/25 transition-all duration-300 hover:scale-105 border-0 overflow-hidden",
+            isCollapsed ? "w-12 h-12 p-0" : "px-4 py-2"
+          )}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <div className="relative flex items-center space-x-1.5">
             <User className="h-4 w-4" />
-            <span>Login</span>
-            <Sparkles className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            {!isCollapsed && (
+              <>
+                <span className="text-xs">Login</span>
+                <Sparkles className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </>
+            )}
           </div>
         </Button>
       </Link>
@@ -64,7 +76,10 @@ export function UserDropdown() {
       <Button
         onClick={handleToggle}
         variant="ghost"
-        className="group relative flex items-center space-x-2 px-3 py-2 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 transition-all duration-300 hover:scale-105 active:scale-95"
+        className={cn(
+          "group relative flex items-center space-x-2 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 transition-all duration-300 hover:scale-105 active:scale-95",
+          isCollapsed ? "w-12 h-12 p-0 justify-center" : "px-3 py-2"
+        )}
       >
         <div className="relative">
           <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-blue-500/25 transition-all duration-300 group-hover:scale-110">
@@ -72,18 +87,27 @@ export function UserDropdown() {
           </div>
           <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white dark:border-gray-900 animate-pulse"></div>
         </div>
-        <span className="hidden sm:block text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
-          {user.name}
-        </span>
-        <ChevronDown className={`h-4 w-4 text-gray-500 group-hover:text-blue-500 transition-all duration-300 ${isOpen ? 'rotate-180 scale-110' : 'rotate-0 scale-100'}`} />
+        {!isCollapsed && (
+          <>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300 truncate">
+              {user.name}
+            </span>
+            <ChevronDown className={`h-4 w-4 text-gray-500 group-hover:text-blue-500 transition-all duration-300 ${isOpen ? 'rotate-180 scale-110' : 'rotate-0 scale-100'}`} />
+          </>
+        )}
       </Button>
 
       {/* Dropdown */}
-      <div className={`absolute right-0 mt-2 w-56 sm:w-64 z-50 transform transition-all duration-500 ease-out ${
+      <div className={cn(
+        "absolute z-50 transform transition-all duration-500 ease-out",
+        "w-56 sm:w-64",
+        "left-1/2 -translate-x-1/2 bottom-12",
+        "max-w-[calc(100vw-2rem)] sm:max-w-[calc(100vw-6rem)]",
+        "ml-1 sm:ml-4",
         isOpen 
           ? 'opacity-100 scale-100 translate-y-0' 
-          : 'opacity-0 scale-90 -translate-y-4 pointer-events-none'
-      }`}>
+          : 'opacity-0 scale-90 translate-y-4 pointer-events-none'
+      )}>
         <div className={`bg-white/95 dark:bg-gray-800/95 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden backdrop-blur-xl transition-all duration-500 ${
           isOpen 
             ? 'shadow-blue-500/20 shadow-2xl' 

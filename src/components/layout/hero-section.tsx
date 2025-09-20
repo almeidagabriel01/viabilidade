@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { Building2, BarChart3, MapPin, TrendingUp, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { AdvancedButton } from "@/components/ui/advanced-button";
 import { AdvancedCard } from "@/components/ui/advanced-card";
@@ -73,17 +72,6 @@ export function HeroSection() {
 
             {/* Actions - Responsive */}
             <div className="flex items-center space-x-2 lg:space-x-4">
-              {/* Mobile CTA Button */}
-              <Link href="/uso-modelo" className="lg:hidden">
-                <Button 
-                  size="sm"
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold px-4 py-2 rounded-xl shadow-lg hover:shadow-blue-500/25 transition-all duration-300 hover:scale-105 border-0 text-xs"
-                >
-                  <Building2 className="h-4 w-4 mr-1.5" />
-                  Analisar
-                </Button>
-              </Link>
-              
               {/* User Dropdown */}
               <UserDropdown />
               

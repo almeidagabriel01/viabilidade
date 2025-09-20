@@ -56,7 +56,7 @@ function MainLayout({ children }: MainLayoutProps) {
             {/* Container para o formulário */}
             <div
               className={`container mx-auto py-6 px-4 lg:px-8 max-w-6xl ${
-                !isDesktop ? "pt-2" : ""
+                !isDesktop ? "pt-20" : ""
               }`}
             >
               {children}
