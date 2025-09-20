@@ -6,9 +6,10 @@ import { StatCard } from "./stat-card";
 
 interface StatsTabProps {
   analyses: Analysis[];
+  isLoading?: boolean;
 }
 
-export function StatsTab({ analyses }: StatsTabProps) {
+export function StatsTab({ analyses, isLoading = false }: StatsTabProps) {
   const completedAnalyses = analyses.filter(
     (a) => a.status === "completa"
   ).length;
@@ -21,6 +22,18 @@ export function StatsTab({ analyses }: StatsTabProps) {
             analyses.filter((a) => a.score).length
         )
       : 0;
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="animate-pulse">
+            <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-6 h-24"></div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">

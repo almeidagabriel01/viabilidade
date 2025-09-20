@@ -1,7 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
+import { Suspense } from "react";
 import MainLayout from "@/components/layout/main-layout";
 import { PageTransition } from "@/components/layout/page-transition";
 import { LoadingState } from "@/components/result/loading-state";
@@ -12,10 +13,11 @@ import { CompanyDataSummary } from "@/components/result/company-data-summary";
 import { ActionButtons } from "@/components/result/action-buttons";
 import { useResultData } from "@/hooks/use-result-data";
 
-
-export default function ResultPage() {
+function ResultPageContent() {
   const router = useRouter();
-  const { result, isLoading } = useResultData();
+  const searchParams = useSearchParams();
+  const analysisId = searchParams.get('analysisId');
+  const { result, isLoading } = useResultData(analysisId || undefined);
 
   const handleNewAnalysis = () => {
     router.push('/uso-modelo');
@@ -24,7 +26,6 @@ export default function ResultPage() {
   const handleBackToForm = () => {
     router.push('/uso-modelo');
   };
-
 
   if (isLoading) {
     return <LoadingState />;
@@ -50,6 +51,14 @@ export default function ResultPage() {
         </div>
       </PageTransition>
     </MainLayout>
+  );
+}
+
+export default function ResultPage() {
+  return (
+    <Suspense fallback={<LoadingState />}>
+      <ResultPageContent />
+    </Suspense>
   );
 }
 

@@ -5,11 +5,12 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Settings, FileText, Building2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { Analysis, UserProfile } from "@/types/profile";
+import { UserProfile } from "@/types/profile";
 import { ProfileHeader } from "./profile-header";
 import { PersonalInfoTab } from "./personal-info-tab";
 import { AnalysesTab } from "./analysis-tab";
 import { StatsTab } from "./stats-tab";
+import { useAnalyses } from "@/hooks/use-analyses";
 
 const mockUser: UserProfile = {
   id: "1",
@@ -23,49 +24,10 @@ const mockUser: UserProfile = {
   ultimoAcesso: "2024-12-20",
 };
 
-const mockAnalyses: Analysis[] = [
-  {
-    id: "1",
-    titulo: "Padaria Central",
-    cnae: "5611-2/01 - Lanchonetes, casas de chá, de sucos",
-    endereco: "Av. Paulista, 1000",
-    cidade: "São Paulo",
-    uf: "SP",
-    status: "completa",
-    score: 85,
-    dataAnalise: "2024-12-18",
-    dataAtualizacao: "2024-12-18",
-    dadosCompletos: true,
-  },
-  {
-    id: "2",
-    titulo: "Farmácia Popular",
-    cnae: "4771-7/01 - Comércio varejista de produtos farmacêuticos",
-    endereco: "Rua Augusta, 500",
-    cidade: "São Paulo",
-    uf: "SP",
-    status: "incompleta",
-    dataAnalise: "2024-12-15",
-    dataAtualizacao: "2024-12-19",
-    dadosCompletos: false,
-  },
-  {
-    id: "3",
-    titulo: "Mercadinho do Bairro",
-    cnae: "4712-1/00 - Comércio varejista de mercadorias em geral",
-    endereco: "Rua das Palmeiras, 250",
-    cidade: "Campinas",
-    uf: "SP",
-    status: "processando",
-    dataAnalise: "2024-12-20",
-    dataAtualizacao: "2024-12-20",
-    dadosCompletos: true,
-  },
-];
 
 export function ProfileContent() {
   const [user, setUser] = useState<UserProfile>(mockUser);
-  const [analyses] = useState(mockAnalyses);
+  const { analyses, isLoading: analysesLoading } = useAnalyses();
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState<UserProfile>(mockUser);
   const [activeTab, setActiveTab] = useState<string>("info");
@@ -148,12 +110,12 @@ export function ProfileContent() {
 
           {/* Aba de Análises */}
           <TabsContent value="analyses">
-            <AnalysesTab analyses={analyses} />
+            <AnalysesTab analyses={analyses} isLoading={analysesLoading} />
           </TabsContent>
 
           {/* Aba de Estatísticas */}
           <TabsContent value="stats">
-            <StatsTab analyses={analyses} />
+            <StatsTab analyses={analyses} isLoading={analysesLoading} />
           </TabsContent>
         </Tabs>
       </motion.div>

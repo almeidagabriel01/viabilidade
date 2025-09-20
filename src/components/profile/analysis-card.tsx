@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { MapPin, Calendar, ChevronRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Badge } from "../ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Analysis } from "../../types/profile";
@@ -10,12 +11,36 @@ import {
   getStatusIcon,
   getStatusText,
 } from "../../lib/analysisUtils";
+import { setCurrentAnalysisId, clearCurrentAnalysisId } from "@/lib/storage/analysis-storage";
+import { storeAnalysisData } from "@/lib/storage/analysis-data-storage";
+import { getFormData } from "@/lib/storage/form-data-storage";
 
 interface AnalysisCardProps {
   analysis: Analysis;
 }
 
 export function AnalysisCard({ analysis }: AnalysisCardProps) {
+  const router = useRouter();
+
+  const handleViewResult = () => {
+    // Limpar análise atual e navegar para o resultado
+    clearCurrentAnalysisId();
+    router.push(`/resultado?analysisId=${analysis.id}`);
+  };
+
+  const handleContinue = () => {
+    // Definir a análise atual e navegar para o formulário
+    setCurrentAnalysisId(analysis.id);
+    
+    // Carregar dados da análise se existirem
+    const formData = getFormData();
+    if (formData) {
+      storeAnalysisData(analysis.id, formData);
+    }
+    
+    router.push('/uso-modelo');
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -74,6 +99,7 @@ export function AnalysisCard({ analysis }: AnalysisCardProps) {
                 size="sm"
                 variant="outline"
                 className="text-orange-600 border-orange-200 hover:bg-orange-50 dark:text-orange-400 dark:border-orange-800 dark:hover:bg-orange-900/20 text-xs"
+                onClick={handleContinue}
               >
                 <span className="hidden sm:inline">Continuar</span>
                 <span className="sm:hidden">▶</span>
@@ -84,6 +110,7 @@ export function AnalysisCard({ analysis }: AnalysisCardProps) {
                 size="sm"
                 variant="outline"
                 className="text-green-600 border-green-200 hover:bg-green-50 dark:text-green-400 dark:border-green-800 dark:hover:bg-green-900/20 text-xs"
+                onClick={handleViewResult}
               >
                 <span className="hidden sm:inline">Ver Resultado</span>
                 <span className="sm:hidden">👁</span>

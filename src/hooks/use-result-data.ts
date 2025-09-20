@@ -3,6 +3,7 @@ import { AnalysisResultType, AnalysisResponse, CompanyData } from "@/types/compa
 import { resultConfigs } from "@/lib/config/result-configs";
 import { analyzeViability } from "@/lib/api/analysis-service";
 import { getFormData } from "@/lib/storage/form-data-storage";
+import { getAnalysisDataById } from "@/lib/storage/analysis-data-storage";
 
 const DEBUG_RESULT_TYPE: AnalysisResultType | null = null; //'positive', 'negative', 'inadequate_use', 'excessive_use' e null
 
@@ -19,15 +20,24 @@ const mockCompanyData: CompanyData = {
   capitalInicial: 50000
 };
 
-export function useResultData() {
+export function useResultData(analysisId?: string) {
   const [result, setResult] = useState<AnalysisResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadResult = async () => {
       try {
-        const formData = getFormData();
-        const companyData = formData || mockCompanyData;
+        let companyData: CompanyData;
+        
+        if (analysisId) {
+          // Buscar dados específicos da análise
+          const analysisData = getAnalysisDataById(analysisId);
+          companyData = analysisData || mockCompanyData;
+        } else {
+          // Usar dados do formulário atual
+          const formData = getFormData();
+          companyData = formData || mockCompanyData;
+        }
         
         if (DEBUG_RESULT_TYPE) {
           const analysisResult: AnalysisResponse = {
@@ -44,8 +54,15 @@ export function useResultData() {
         }
       } catch (error) {
         console.error('Erro ao carregar resultado:', error);
-        const formData = getFormData();
-        const companyData = formData || mockCompanyData;
+        let companyData: CompanyData;
+        
+        if (analysisId) {
+          const analysisData = getAnalysisDataById(analysisId);
+          companyData = analysisData || mockCompanyData;
+        } else {
+          const formData = getFormData();
+          companyData = formData || mockCompanyData;
+        }
         
         const fallbackResult: AnalysisResponse = {
           result: resultConfigs['inadequate_use'],
@@ -61,7 +78,7 @@ export function useResultData() {
     };
 
     loadResult();
-  }, []);
+  }, [analysisId]);
 
   return { result, isLoading };
 }
