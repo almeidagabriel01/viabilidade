@@ -2,6 +2,50 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  overflow-x: hidden;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Scrollbar customizado */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 100, 100, 0.5) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(100, 100, 100, 0.5);
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 100, 100, 0.5);
+}
+
+/* Modo escuro - mantém o mesmo estilo */
+.dark * {
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.dark *::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.dark *::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
 }
 
 /* Page transition animation */
@@ -178,22 +222,4 @@ body > div {
 
 .animation-delay-4000 {
   animation-delay: 4s;
-}
-
-/* Scrollbar styling for dark mode */
-.dark ::-webkit-scrollbar {
-  width: 6px;
-}
-
-.dark ::-webkit-scrollbar-track {
-  background: rgb(31 41 55);
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: rgb(75 85 99);
-  border-radius: 3px;
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: rgb(107 114 128);
 }

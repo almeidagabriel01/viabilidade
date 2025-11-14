@@ -12,6 +12,7 @@ import { DetailsRecommendations } from "@/components/result/details-recommendati
 import { CompanyDataSummary } from "@/components/result/company-data-summary";
 import { ActionButtons } from "@/components/result/action-buttons";
 import { useResultData } from "@/hooks/use-result-data";
+import { ProtectedRoute } from "@/components/auth/protected-route";
 
 function ResultPageContent() {
   const router = useRouter();
@@ -56,9 +57,11 @@ function ResultPageContent() {
 
 export default function ResultPage() {
   return (
-    <Suspense fallback={<LoadingState />}>
-      <ResultPageContent />
-    </Suspense>
+    <ProtectedRoute>
+      <Suspense fallback={<LoadingState />}>
+        <ResultPageContent />
+      </Suspense>
+    </ProtectedRoute>
   );
 }
 

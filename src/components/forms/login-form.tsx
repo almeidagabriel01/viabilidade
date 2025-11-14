@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Building2 } from "lucide-react";
 import {
   Form,
@@ -14,24 +15,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 import { Input, PasswordInput } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
-import { useRouter } from "next/navigation";
 
 const loginFormSchema = z.object({
   email: z.string().min(1, "Email é obrigatório").email("Email inválido"),
   password: z
     .string()
-    .min(8, "Senha deve ter no mínimo 8 caracteres")
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).+$/,
-      "A senha deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial"
-    ),
+    .min(1, "Senha é obrigatória"),
 });
 
 type LoginFormData = z.infer<typeof loginFormSchema>;
 
 const LoginForm: React.FC = () => {
   const { login } = useAuth();
-  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -42,24 +40,24 @@ const LoginForm: React.FC = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      // Simular login - em um sistema real, aqui seria feita a chamada para a API
-      console.log("Form data:", data);
+      setIsLoading(true);
+      setError(null);
 
-      // Simular dados do usuário (em um sistema real, viria da API)
-      const userData = {
-        id: "1",
-        name: data.email.split("@")[0], // Usar parte do email como nome
-        email: data.email,
-      };
+      // Chamar API de login
+      await login(data);
 
-      // Fazer login
-      login(userData);
-
-      // Redirecionar para a página inicial
-      router.push("/");
-    } catch (error) {
+      // Redirecionar será feito automaticamente pelo PublicRoute
+    } catch (error: any) {
       console.error("Erro ao fazer login:", error);
-      alert("Erro ao fazer login. Tente novamente.");
+      
+      // Mostrar mensagem de erro amigável
+      if (error.message) {
+        setError(error.message);
+      } else {
+        setError("Erro ao fazer login. Verifique suas credenciais e tente novamente.");
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -94,11 +92,7 @@ const LoginForm: React.FC = () => {
           </div>
 
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit((data) =>
-                onSubmit(data as unknown as LoginFormData)
-              )}
-            >
+            <form onSubmit={form.handleSubmit(onSubmit)}>
               <div className="space-y-6">
                 <div className="space-y-4">
                   <FormField
@@ -113,10 +107,7 @@ const LoginForm: React.FC = () => {
                           <Input
                             placeholder="Digite seu email"
                             className="h-12 text-base bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-                            value={field.value || ""}
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
-                            name={field.name}
+                            {...field}
                           />
                         </FormControl>
                         <FormMessage />
@@ -135,10 +126,7 @@ const LoginForm: React.FC = () => {
                           <PasswordInput
                             placeholder="Digite sua senha"
                             className="h-12 text-base bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-                            value={field.value || ""}
-                            onChange={field.onChange}
-                            onBlur={field.onBlur}
-                            name={field.name}
+                            {...field}
                           />
                         </FormControl>
                         <FormMessage />
@@ -146,6 +134,7 @@ const LoginForm: React.FC = () => {
                     )}
                   />
                 </div>
+                
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <input
@@ -169,11 +158,27 @@ const LoginForm: React.FC = () => {
                   </a>
                 </div>
 
+                {error && (
+                  <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                    <p className="text-sm text-red-600 dark:text-red-400 font-medium">
+                      {error}
+                    </p>
+                  </div>
+                )}
+
                 <button
                   type="submit"
-                  className="w-full bg-blue-600 dark:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 dark:hover:bg-purple-800 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-950 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                  disabled={isLoading}
+                  className="w-full bg-blue-600 dark:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 dark:hover:bg-purple-800 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-950 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2"
                 >
-                  Entrar
+                  {isLoading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Entrando...</span>
+                    </>
+                  ) : (
+                    <span>Entrar</span>
+                  )}
                 </button>
               </div>
             </form>
