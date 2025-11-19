@@ -95,11 +95,11 @@ export default function RegisterForm() {
       });
 
       // Redirecionar será feito automaticamente pelo PublicRoute
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erro ao realizar cadastro:", error);
       
       // Mostrar mensagem de erro amigável
-      if (error.message) {
+      if (error instanceof Error && error.message) {
         setError(error.message);
       } else {
         setError("Erro ao realizar cadastro. Tente novamente.");

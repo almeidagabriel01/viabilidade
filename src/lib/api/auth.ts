@@ -39,7 +39,7 @@ export class AuthError extends Error {
   constructor(
     message: string,
     public statusCode?: number,
-    public details?: any
+    public details?: unknown
   ) {
     super(message);
     this.name = 'AuthError';
@@ -146,7 +146,7 @@ export async function registerUser(userData: RegisterRequest): Promise<RegisterR
 /**
  * Decodifica um JWT token (sem validar assinatura)
  */
-function decodeJWT(token: string): any {
+function decodeJWT(token: string): { exp?: number; [key: string]: unknown } | null {
   try {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -157,7 +157,7 @@ function decodeJWT(token: string): any {
         .join('')
     );
     return JSON.parse(jsonPayload);
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -181,7 +181,7 @@ export async function validateToken(token: string): Promise<boolean> {
     const isExpired = decoded.exp < currentTime;
     
     return !isExpired;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
@@ -208,9 +208,9 @@ export async function getUserById(userId: string, token: string): Promise<UserRe
 
     const data = await response.json();
     return data;
-  } catch (error) {
-    if (error instanceof AuthError) {
-      throw error;
+  } catch (err) {
+    if (err instanceof AuthError) {
+      throw err;
     }
     
     throw new AuthError(

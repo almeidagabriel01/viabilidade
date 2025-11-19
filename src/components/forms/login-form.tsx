@@ -47,11 +47,11 @@ const LoginForm: React.FC = () => {
       await login(data);
 
       // Redirecionar será feito automaticamente pelo PublicRoute
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erro ao fazer login:", error);
       
       // Mostrar mensagem de erro amigável
-      if (error.message) {
+      if (error instanceof Error && error.message) {
         setError(error.message);
       } else {
         setError("Erro ao fazer login. Verifique suas credenciais e tente novamente.");

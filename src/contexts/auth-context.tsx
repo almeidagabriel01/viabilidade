@@ -10,8 +10,6 @@ import {
   validateToken,
   type LoginRequest,
   type RegisterRequest,
-  type UserResponse,
-  AuthError,
 } from '@/lib/api/auth';
 
 interface User {
