@@ -11,6 +11,10 @@ interface LocationStepProps {
   control: Control<CompanyFormData>;
   setValue: UseFormSetValue<CompanyFormData>;
   cepValue: string;
+  ruaValue?: string;
+  bairroValue?: string;
+  cidadeValue?: string;
+  ufValue?: string;
 }
 
 // Função para buscar dados do CEP via ViaCEP
@@ -29,24 +33,29 @@ const fetchCepData = async (cep: string) => {
   }
 };
 
-export function LocationStep({ control, setValue, cepValue }: LocationStepProps) {
+export function LocationStep({ control, setValue, cepValue, ruaValue, bairroValue, cidadeValue, ufValue }: LocationStepProps) {
   // Auto-completar endereço quando CEP for inserido
   useEffect(() => {
     const handleCepLookup = async () => {
       const cleanCep = cepValue?.replace(/\D/g, '') || '';
       
       if (cleanCep.length === 8) {
-        console.log('Buscando CEP:', cleanCep); // Debug
         const data = await fetchCepData(cepValue);
         
         if (data && !data.erro) {
-          console.log('Dados encontrados:', data); // Debug
-          setValue('rua', data.logradouro || '');
-          setValue('bairro', data.bairro || '');
-          setValue('cidade', data.localidade || '');
-          setValue('uf', data.uf || '');
-        } else {
-          console.log('CEP não encontrado ou erro na API'); // Debug
+          // Só sobrescreve os campos se estiverem vazios E a API retornar dados
+          if (!ruaValue && data.logradouro) {
+            setValue('rua', data.logradouro);
+          }
+          if (!bairroValue && data.bairro) {
+            setValue('bairro', data.bairro);
+          }
+          if (!cidadeValue && data.localidade) {
+            setValue('cidade', data.localidade);
+          }
+          if (!ufValue && data.uf) {
+            setValue('uf', data.uf);
+          }
         }
       }
     };
@@ -54,7 +63,7 @@ export function LocationStep({ control, setValue, cepValue }: LocationStepProps)
     // Debounce para evitar muitas chamadas
     const timeoutId = setTimeout(handleCepLookup, 500);
     return () => clearTimeout(timeoutId);
-  }, [cepValue, setValue]);
+  }, [cepValue, setValue, ruaValue, bairroValue, cidadeValue, ufValue]);
 
   return (
     <motion.div

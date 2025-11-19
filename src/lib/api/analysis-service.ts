@@ -64,7 +64,7 @@ export async function analyzeViability(companyData: CompanyData): Promise<Analys
     };
   }
 
-  const resultType = simulateViabilityAnalysis(companyData);
+  const { resultType, score } = calculateViability(companyData);
 
   const resultConfigs = {
     positive: {
@@ -86,6 +86,26 @@ export async function analyzeViability(companyData: CompanyData): Promise<Analys
       icon: "CheckCircle",
       color: "text-green-600",
       bgColor: "bg-green-50"
+    },
+    moderate: {
+      type: "moderate" as AnalysisResultType,
+      title: "Avaliação Moderada",
+      description: "A análise indica um potencial moderado. Existem boas oportunidades, mas também desafios que exigem atenção e planejamento cuidadoso para garantir o sucesso.",
+      details: [
+        "Localização com demanda estável",
+        "Concorrência presente mas superável",
+        "Necessidade de diferenciação no mercado",
+        "Custos operacionais dentro da média"
+      ],
+      recommendations: [
+        "Refine seu plano de negócios",
+        "Analise profundamente a concorrência",
+        "Busque diferenciais competitivos",
+        "Considere estratégias de marketing agressivas"
+      ],
+      icon: "AlertTriangle",
+      color: "text-yellow-600",
+      bgColor: "bg-yellow-50"
     },
     negative: {
       type: "negative" as AnalysisResultType,
@@ -114,28 +134,54 @@ export async function analyzeViability(companyData: CompanyData): Promise<Analys
     companyData: companyData,
     analysisDate: new Date().toISOString(),
     testCount: currentTestCount,
-    maxTests
+    maxTests,
+    viabilityScore: score
   };
 }
 
 function isValidCompanyData(): boolean {
-  return Math.random() > 0.1;
+  return true; // Removido aleatoriedade de erro para consistência
 }
 
-function simulateViabilityAnalysis(data: CompanyData): "positive" | "negative" {
-  let score = 0;
+function calculateViability(data: CompanyData): { resultType: "positive" | "moderate" | "negative", score: number } {
+  let score = 50; // Base score
   
-  if (data.capitalInicial >= 50000) score += 2;
-  else if (data.capitalInicial >= 20000) score += 1;
+  // Fatores de Capital (max +20)
+  if (data.capitalInicial >= 100000) score += 20;
+  else if (data.capitalInicial >= 50000) score += 15;
+  else if (data.capitalInicial >= 20000) score += 10;
+  else if (data.capitalInicial >= 5000) score += 5;
   
-  if (data.uf === 'SP') score += 2;
-  else if (['RJ', 'MG', 'RS'].includes(data.uf)) score += 1;
+  // Fatores Regionais (max +15)
+  if (data.uf === 'SP') score += 15;
+  else if (['RJ', 'MG', 'RS', 'PR', 'SC'].includes(data.uf)) score += 10;
+  else score += 5;
   
-  const promisingCnaes = ['47.81', '47.82', '47.83', '56.10', '56.20'];
-  if (promisingCnaes.some(cnae => data.cnae.startsWith(cnae))) score += 2;
+  // Fatores de CNAE/Nicho (max +15)
+  const promisingCnaes = ['47', '56', '62', '70', '85']; // Varejo, Alimentação, TI, Imobiliário, Educação
+  if (promisingCnaes.some(prefix => data.cnae.startsWith(prefix))) {
+    score += 15;
+  } else {
+    score += 5;
+  }
+
+  // Normalização para 0-100
+  score = Math.min(100, Math.max(0, score));
   
-  const threshold = score >= 4 ? 0.6 : 0.4;
+  // Determinação do resultado
+  // Score >= 70 é positivo
+  // Score >= 40 e < 70 é moderado
+  // Score < 40 é negativo
+  let resultType: "positive" | "moderate" | "negative";
   
-  return Math.random() < threshold ? "positive" : "negative";
+  if (score >= 70) {
+    resultType = "positive";
+  } else if (score >= 40) {
+    resultType = "moderate";
+  } else {
+    resultType = "negative";
+  }
+  
+  return { resultType, score };
 }
 

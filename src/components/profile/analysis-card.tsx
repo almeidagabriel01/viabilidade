@@ -31,13 +31,6 @@ export function AnalysisCard({ analysis }: AnalysisCardProps) {
   const handleContinue = () => {
     // Definir a análise atual e navegar para o formulário
     setCurrentAnalysisId(analysis.id);
-    
-    // Carregar dados da análise se existirem
-    const formData = getFormData();
-    if (formData) {
-      storeAnalysisData(analysis.id, formData);
-    }
-    
     router.push('/uso-modelo');
   };
 

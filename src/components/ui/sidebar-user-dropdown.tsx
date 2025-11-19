@@ -108,7 +108,7 @@ export function SidebarUserDropdown({ isCollapsed }: SidebarUserDropdownProps) {
         variant="ghost"
         className={cn(
           "group relative flex items-center rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 transition-all duration-[600ms] ease-in-out hover:scale-105 active:scale-95",
-          isCollapsed ? "w-12 h-12 p-2 justify-center" : "px-3 py-3 w-full space-x-3"
+          isCollapsed ? "w-12 h-12 p-2 justify-center" : "px-3 py-6 w-full space-x-3"
         )}
       >
         <div className="relative">
@@ -175,24 +175,24 @@ export function SidebarUserDropdown({ isCollapsed }: SidebarUserDropdownProps) {
               </div>
             </div>
             
-            <div className="py-1">
+            <div className="py-2 px-2 overflow-hidden">
               <Link href="/perfil" onClick={() => setIsOpen(false)}>
-                <div className="group flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 cursor-pointer transition-all duration-200 hover:translate-x-1">
-                  <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 group-hover:scale-110 transition-all duration-200">
+                <div className="group flex items-center px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 cursor-pointer transition-all duration-200 rounded-xl">
+                  <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 group-hover:scale-110 transition-all duration-200 flex-shrink-0">
                     <Settings className="h-4 w-4 text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all duration-200" />
                   </div>
-                  <span className="ml-3 font-medium transition-all duration-200">Meu Perfil</span>
+                  <span className="ml-3 font-medium transition-all duration-200 truncate">Meu Perfil</span>
                 </div>
               </Link>
               
               <button
                 onClick={handleLogout}
-                className="group flex items-center w-full px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 dark:hover:from-red-900/20 dark:hover:to-pink-900/20 cursor-pointer transition-all duration-200 hover:translate-x-1"
+                className="group flex items-center w-full px-3 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 dark:hover:from-red-900/20 dark:hover:to-pink-900/20 cursor-pointer transition-all duration-200 rounded-xl"
               >
-                <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/20 flex items-center justify-center group-hover:bg-red-200 dark:group-hover:bg-red-900/30 group-hover:scale-110 transition-all duration-200">
+                <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/20 flex items-center justify-center group-hover:bg-red-200 dark:group-hover:bg-red-900/30 group-hover:scale-110 transition-all duration-200 flex-shrink-0">
                   <LogOut className="h-4 w-4 text-red-600 dark:text-red-400 transition-all duration-200" />
                 </div>
-                <span className="ml-3 font-medium transition-all duration-200">Sair</span>
+                <span className="ml-3 font-medium transition-all duration-200 truncate">Sair</span>
               </button>
             </div>
           </div>

@@ -21,6 +21,26 @@ export const resultConfigs: Record<AnalysisResultType, AnalysisResult> = {
     color: "text-green-600 dark:text-green-400",
     bgColor: "bg-green-50 dark:bg-green-900/20"
   },
+  moderate: {
+    type: "moderate",
+    title: "Avaliação Moderada",
+    description: "A análise indica um potencial moderado. Existem boas oportunidades, mas também desafios que exigem atenção e planejamento cuidadoso para garantir o sucesso.",
+    details: [
+      "Localização com demanda estável",
+      "Concorrência presente mas superável",
+      "Necessidade de diferenciação no mercado",
+      "Custos operacionais dentro da média"
+    ],
+    recommendations: [
+      "Refine seu plano de negócios",
+      "Analise profundamente a concorrência",
+      "Busque diferenciais competitivos",
+      "Considere estratégias de marketing agressivas"
+    ],
+    icon: "AlertTriangle",
+    color: "text-yellow-600 dark:text-yellow-400",
+    bgColor: "bg-yellow-50 dark:bg-yellow-900/20"
+  },
   negative: {
     type: "negative",
     title: "Avaliação Negativa",

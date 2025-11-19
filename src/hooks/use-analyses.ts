@@ -11,7 +11,11 @@ export function useAnalyses() {
     const loadAnalyses = () => {
       try {
         const storedAnalyses = getAnalyses();
-        setAnalyses(storedAnalyses);
+        // Ordenar por data de atualização (mais recente primeiro)
+        const sortedAnalyses = storedAnalyses.sort((a, b) => 
+          new Date(b.dataAtualizacao).getTime() - new Date(a.dataAtualizacao).getTime()
+        );
+        setAnalyses(sortedAnalyses);
       } catch (error) {
         console.error('Erro ao carregar análises:', error);
         setAnalyses([]);
@@ -24,7 +28,10 @@ export function useAnalyses() {
 
     // Subscrever a mudanças
     const unsubscribe = subscribeToAnalysisChanges((updatedAnalyses) => {
-      setAnalyses(updatedAnalyses);
+      const sortedAnalyses = updatedAnalyses.sort((a, b) => 
+        new Date(b.dataAtualizacao).getTime() - new Date(a.dataAtualizacao).getTime()
+      );
+      setAnalyses(sortedAnalyses);
     });
 
     return unsubscribe;

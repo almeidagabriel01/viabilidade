@@ -27,6 +27,7 @@ export interface ViaCEPResponse {
 
 export type AnalysisResultType = 
   | "positive" 
+  | "moderate"
   | "negative" 
   | "inadequate_use" 
   | "excessive_use";
@@ -42,10 +43,28 @@ export interface AnalysisResult {
   bgColor: string;
 }
 
+export interface LocationCoordinates {
+  lat: number;
+  lng: number;
+}
+
+export interface LocationAddress {
+  endereco: string;
+  numero: string;
+  bairro: string;
+  cidade: string;
+  uf: string;
+  cep: string;
+  enderecoCompleto: string; // Endereço formatado para Google Maps
+}
+
 export interface AnalysisResponse {
   result: AnalysisResult;
   companyData: CompanyData;
   analysisDate: string;
   testCount?: number;
   maxTests?: number;
+  viabilityScore?: number; // Porcentagem de 0 a 100
+  coordinates?: LocationCoordinates;
+  fullAddress?: string; // Endereço completo formatado para Google Maps
 }

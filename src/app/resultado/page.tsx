@@ -7,7 +7,7 @@ import MainLayout from "@/components/layout/main-layout";
 import { PageTransition } from "@/components/layout/page-transition";
 import { LoadingState } from "@/components/result/loading-state";
 import { ResultHeader } from "@/components/result/result-header";
-import { MainResultCard } from "@/components/result/main-result-card";
+import { MapResultContainer } from "@/components/result/map-result-container";
 import { DetailsRecommendations } from "@/components/result/details-recommendations";
 import { CompanyDataSummary } from "@/components/result/company-data-summary";
 import { ActionButtons } from "@/components/result/action-buttons";
@@ -44,7 +44,14 @@ function ResultPageContent() {
             transition={{ duration: 0.6 }}
           >
             <ResultHeader result={result} onBackToForm={handleBackToForm} />
-            <MainResultCard result={result} />
+            
+            {/* Mapa e Resultado Combinados */}
+            {result.result.type !== 'inadequate_use' && result.result.type !== 'excessive_use' ? (
+              <MapResultContainer result={result} />
+            ) : (
+              <MapResultContainer result={result} />
+            )}
+            
             <DetailsRecommendations result={result} />
             <CompanyDataSummary result={result} />
             <ActionButtons result={result} onNewAnalysis={handleNewAnalysis} />

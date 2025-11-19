@@ -4,21 +4,9 @@ import { resultConfigs } from "@/lib/config/result-configs";
 import { analyzeViability } from "@/lib/api/analysis-service";
 import { getFormData } from "@/lib/storage/form-data-storage";
 import { getAnalysisDataById } from "@/lib/storage/analysis-data-storage";
+import { getAnalysisById } from "@/lib/storage/analysis-storage";
 
 const DEBUG_RESULT_TYPE: AnalysisResultType | null = null; //'positive', 'negative', 'inadequate_use', 'excessive_use' e null
-
-const mockCompanyData: CompanyData = {
-  endereco: "01310-100",
-  rua: "Av. Paulista",
-  numero: "1000",
-  complemento: "Sala 100",
-  bairro: "Bela Vista",
-  cidade: "São Paulo",
-  uf: "SP",
-  cnae: "47.81-0-00",
-  isMei: false,
-  capitalInicial: 50000
-};
 
 export function useResultData(analysisId?: string) {
   const [result, setResult] = useState<AnalysisResponse | null>(null);
@@ -27,41 +15,92 @@ export function useResultData(analysisId?: string) {
   useEffect(() => {
     const loadResult = async () => {
       try {
-        let companyData: CompanyData;
+        let companyData: CompanyData | null = null;
+        let storedAnalysis = null;
         
         if (analysisId) {
-          // Buscar dados específicos da análise
+          // Buscar dados específicos da análise por ID
           const analysisData = getAnalysisDataById(analysisId);
-          companyData = analysisData || mockCompanyData;
+          storedAnalysis = getAnalysisById(analysisId);
+          companyData = analysisData;
         } else {
-          // Usar dados do formulário atual
+          // Usar dados do formulário mais recente
           const formData = getFormData();
-          companyData = formData || mockCompanyData;
+          companyData = formData;
+        }
+        
+        // Se não encontrou dados, retornar erro
+        if (!companyData) {
+          throw new Error('Dados da análise não encontrados');
         }
         
         if (DEBUG_RESULT_TYPE) {
           const analysisResult: AnalysisResponse = {
             result: resultConfigs[DEBUG_RESULT_TYPE],
             companyData: companyData,
-            analysisDate: new Date().toISOString(),
+            analysisDate: storedAnalysis?.dataAnalise || new Date().toISOString(),
             testCount: DEBUG_RESULT_TYPE === 'excessive_use' ? 2 : 1,
-            maxTests: 2
+            maxTests: 2,
+            viabilityScore: storedAnalysis?.score
           };
           setResult(analysisResult);
         } else {
           const analysisResult = await analyzeViability(companyData);
+          
+          // Se temos uma análise armazenada com score, garantir que o tipo de resultado seja consistente
+          if (storedAnalysis?.score !== undefined) {
+            analysisResult.viabilityScore = storedAnalysis.score;
+            
+            // Recalcular o tipo de resultado baseado no score armazenado
+            let correctResultType: "positive" | "moderate" | "negative";
+            if (storedAnalysis.score >= 70) {
+              correctResultType = "positive";
+            } else if (storedAnalysis.score >= 40) {
+              correctResultType = "moderate";
+            } else {
+              correctResultType = "negative";
+            }
+            
+            // Atualizar o resultado apenas se o tipo for diferente
+            if (analysisResult.result.type !== correctResultType && 
+                (correctResultType === 'positive' || correctResultType === 'moderate' || correctResultType === 'negative')) {
+              analysisResult.result = resultConfigs[correctResultType];
+            }
+          }
+          
+          // Usar a data da análise armazenada se disponível
+          if (storedAnalysis?.dataAnalise) {
+            analysisResult.analysisDate = storedAnalysis.dataAnalise;
+          }
+          
           setResult(analysisResult);
         }
       } catch (error) {
         console.error('Erro ao carregar resultado:', error);
-        let companyData: CompanyData;
         
+        // Tentar buscar dados como fallback
+        let companyData: CompanyData | null = null;
         if (analysisId) {
-          const analysisData = getAnalysisDataById(analysisId);
-          companyData = analysisData || mockCompanyData;
-        } else {
-          const formData = getFormData();
-          companyData = formData || mockCompanyData;
+          companyData = getAnalysisDataById(analysisId);
+        }
+        if (!companyData) {
+          companyData = getFormData();
+        }
+        
+        // Se ainda não tem dados, usar valores padrão
+        if (!companyData) {
+          companyData = {
+            endereco: "00000-000",
+            rua: "Endereço não encontrado",
+            numero: "S/N",
+            complemento: "",
+            bairro: "N/A",
+            cidade: "N/A",
+            uf: "SP",
+            cnae: "0000-0-00",
+            isMei: false,
+            capitalInicial: 0
+          };
         }
         
         const fallbackResult: AnalysisResponse = {

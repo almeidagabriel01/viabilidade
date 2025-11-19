@@ -1,7 +1,7 @@
 // components/ProfileContent.tsx (Componente Principal Corrigido)
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Settings, FileText, Building2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
@@ -11,26 +11,47 @@ import { PersonalInfoTab } from "./personal-info-tab";
 import { AnalysesTab } from "./analysis-tab";
 import { StatsTab } from "./stats-tab";
 import { useAnalyses } from "@/hooks/use-analyses";
-
-const mockUser: UserProfile = {
-  id: "1",
-  nome: "João Silva",
-  email: "joao.silva@email.com",
-  telefone: "(11) 99999-9999",
-  endereco: "Rua das Flores, 123",
-  cidade: "São Paulo",
-  uf: "SP",
-  dataCadastro: "2024-01-15",
-  ultimoAcesso: "2024-12-20",
-};
-
+import { useAuth } from "@/contexts/auth-context";
 
 export function ProfileContent() {
-  const [user, setUser] = useState<UserProfile>(mockUser);
+  const { user: authUser } = useAuth();
+  const [user, setUser] = useState<UserProfile>({
+    id: "",
+    nome: "",
+    email: "",
+    telefone: "",
+    endereco: "",
+    cidade: "",
+    uf: "",
+    dataCadastro: "",
+    ultimoAcesso: "",
+  });
+
+  useEffect(() => {
+    if (authUser) {
+      setUser({
+        id: authUser.id,
+        nome: authUser.name,
+        email: authUser.email,
+        telefone: "(11) 99999-9999", // Placeholder ou buscar de outra fonte se disponível
+        endereco: "Não informado",
+        cidade: "Não informado",
+        uf: "UF",
+        dataCadastro: new Date().toISOString().split('T')[0], // Placeholder
+        ultimoAcesso: new Date().toISOString().split('T')[0],
+      });
+    }
+  }, [authUser]);
+
   const { analyses, isLoading: analysesLoading } = useAnalyses();
   const [isEditing, setIsEditing] = useState(false);
-  const [editedUser, setEditedUser] = useState<UserProfile>(mockUser);
+  const [editedUser, setEditedUser] = useState<UserProfile>(user);
   const [activeTab, setActiveTab] = useState<string>("info");
+
+  // Atualiza editedUser quando user mudar
+  useEffect(() => {
+    setEditedUser(user);
+  }, [user]);
 
   const handleEditToggle = () => {
     if (isEditing) {

@@ -97,6 +97,10 @@ export function CompanyForm() {
             control={form.control as unknown as Control<CompanyFormData>} 
             setValue={form.setValue}
             cepValue={form.watch('endereco') || ''}
+            ruaValue={form.watch('rua')}
+            bairroValue={form.watch('bairro')}
+            cidadeValue={form.watch('cidade')}
+            ufValue={form.watch('uf')}
           />
         );
       case 2:
