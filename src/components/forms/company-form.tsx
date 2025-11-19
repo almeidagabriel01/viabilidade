@@ -116,10 +116,12 @@ export function CompanyForm() {
       transition={{ duration: 0.5 }}
     >
       <AdvancedCard className="shadow-2xl" hover={false}>
-        <CardHeader className="pb-6 pt-6">
-          <CardTitle className="flex items-center justify-center space-x-3 text-xl">
-            <Building2 className="h-6 w-6 text-blue-500" />
-            <span>Análise de Viabilidade Empresarial</span>
+        <CardHeader className="pb-6 pt-8">
+          <CardTitle className="flex items-center justify-center space-x-3 text-xl md:text-2xl">
+            <div className="flex items-center justify-center">
+              <Building2 className="h-7 w-7 md:h-8 md:w-8 text-blue-500" />
+            </div>
+            <span className="text-center">Análise de Viabilidade Empresarial</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="px-6 pb-6">

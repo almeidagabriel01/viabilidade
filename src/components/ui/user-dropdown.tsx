@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 export function UserDropdown() {
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -19,21 +18,17 @@ export function UserDropdown() {
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [isOpen]);
 
-  const handleToggle = () => {
-    if (isAnimating) return;
-    
-    setIsAnimating(true);
-    setIsOpen(!isOpen);
-    
-    setTimeout(() => {
-      setIsAnimating(false);
-    }, 500);
+  const handleToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsOpen(prev => !prev);
   };
 
   const handleLogout = () => {
@@ -64,7 +59,7 @@ export function UserDropdown() {
       <Button
         onClick={handleToggle}
         variant="ghost"
-        className="group relative flex items-center space-x-2 px-3 py-2 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 transition-all duration-300 hover:scale-105 active:scale-95"
+        className="group relative flex items-center space-x-3 px-4 py-6 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 transition-all duration-300 hover:scale-105 active:scale-95"
       >
         <div className="relative">
           <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-blue-500/25 transition-all duration-300 group-hover:scale-110">
@@ -78,36 +73,26 @@ export function UserDropdown() {
         <ChevronDown className={`h-4 w-4 text-gray-500 group-hover:text-blue-500 transition-all duration-300 ${isOpen ? 'rotate-180 scale-110' : 'rotate-0 scale-100'}`} />
       </Button>
 
-      {/* Dropdown */}
-      <div className={`absolute right-0 mt-2 w-56 sm:w-64 z-50 transform transition-all duration-500 ease-out ${
-        isOpen 
-          ? 'opacity-100 scale-100 translate-y-0' 
-          : 'opacity-0 scale-90 -translate-y-4 pointer-events-none'
-      }`}>
-        <div className={`bg-white/95 dark:bg-gray-800/95 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden backdrop-blur-xl transition-all duration-500 ${
+      {/* Dropdown com animação CSS pura */}
+      <div 
+        className={`absolute right-0 mt-2 w-56 sm:w-64 z-50 transition-all duration-300 ease-out origin-top-right ${
           isOpen 
-            ? 'shadow-blue-500/20 shadow-2xl' 
-            : 'shadow-lg'
-        }`}>
+            ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto' 
+            : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'
+        }`}
+      >
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden backdrop-blur-xl">
           {/* User Info Header */}
-          <div className={`px-4 py-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-b border-gray-200 dark:border-gray-700 transition-all duration-500 ${
-            isOpen ? 'animate-in slide-in-from-top-2 duration-500' : ''
-          }`}>
+          <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-3">
-              <div className={`w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg transition-all duration-500 ${
-                isOpen ? 'animate-in zoom-in-50 duration-500 delay-100' : ''
-              }`}>
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
                 <User className="h-5 w-5 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className={`text-sm font-semibold text-gray-900 dark:text-gray-100 truncate transition-all duration-500 ${
-                  isOpen ? 'animate-in slide-in-from-left-2 duration-500 delay-200' : ''
-                }`}>
+                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
                   {user.name}
                 </p>
-                <p className={`text-xs text-gray-500 dark:text-gray-400 truncate transition-all duration-500 ${
-                  isOpen ? 'animate-in slide-in-from-left-2 duration-500 delay-300' : ''
-                }`}>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                   {user.email}
                 </p>
               </div>
@@ -117,26 +102,22 @@ export function UserDropdown() {
           {/* Menu Items */}
           <div className="py-1">
             <Link href="/perfil" onClick={() => setIsOpen(false)}>
-              <div className={`group flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 cursor-pointer transition-all duration-300 hover:translate-x-2 hover:scale-105 ${
-                isOpen ? 'animate-in slide-in-from-right-2 duration-500 delay-100' : ''
-              }`}>
-                <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 group-hover:scale-110 transition-all duration-300">
-                  <Settings className="h-4 w-4 text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:rotate-12 transition-all duration-300" />
+              <div className="group flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 cursor-pointer transition-all duration-200 hover:translate-x-1">
+                <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 group-hover:scale-110 transition-all duration-200">
+                  <Settings className="h-4 w-4 text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all duration-200" />
                 </div>
-                <span className="ml-3 font-medium group-hover:font-semibold transition-all duration-300">Meu Perfil</span>
+                <span className="ml-3 font-medium transition-all duration-200">Meu Perfil</span>
               </div>
             </Link>
             
             <button
               onClick={handleLogout}
-              className={`group flex items-center w-full px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 dark:hover:from-red-900/20 dark:hover:to-pink-900/20 cursor-pointer transition-all duration-300 hover:translate-x-2 hover:scale-105 ${
-                isOpen ? 'animate-in slide-in-from-right-2 duration-500 delay-200' : ''
-              }`}
+              className="group flex items-center w-full px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 dark:hover:from-red-900/20 dark:hover:to-pink-900/20 cursor-pointer transition-all duration-200 hover:translate-x-1"
             >
-              <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/20 flex items-center justify-center group-hover:bg-red-200 dark:group-hover:bg-red-900/30 group-hover:scale-110 transition-all duration-300">
-                <LogOut className="h-4 w-4 text-red-600 dark:text-red-400 group-hover:rotate-12 transition-all duration-300" />
+              <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/20 flex items-center justify-center group-hover:bg-red-200 dark:group-hover:bg-red-900/30 group-hover:scale-110 transition-all duration-200">
+                <LogOut className="h-4 w-4 text-red-600 dark:text-red-400 transition-all duration-200" />
               </div>
-              <span className="ml-3 font-medium group-hover:font-semibold transition-all duration-300">Sair</span>
+              <span className="ml-3 font-medium transition-all duration-200">Sair</span>
             </button>
           </div>
         </div>

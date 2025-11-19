@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
-import { Home, Building2, Menu, X, ChevronLeft } from "lucide-react";
+import { Home, Building2, Menu, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -215,7 +215,7 @@ export function Sidebar({ className }: SidebarProps) {
               transition={{ duration: 0.2, ease: "easeOut" }}
               className="fixed top-[calc(4rem+1px)] left-4 right-4 z-50"
             >
-              <div className="bg-white/95 dark:bg-gray-950/95 backdrop-blur-md border border-gray-200 dark:border-gray-800 rounded-lg shadow-xl overflow-hidden">
+              <div className="bg-gradient-to-br from-white via-white to-gray-50/80 dark:from-gray-950 dark:via-gray-950 dark:to-gray-900/80 backdrop-blur-xl border border-gray-200/50 dark:border-gray-800/50 rounded-2xl shadow-2xl overflow-hidden">
                 <div className="p-4 space-y-2">
                   {menuItems.map((item) => {
                     const Icon = item.icon;
@@ -230,19 +230,26 @@ export function Sidebar({ className }: SidebarProps) {
                         href={item.href}
                         onClick={handleLinkClick}
                         className={cn(
-                          "flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-[1.02]",
+                          "flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all duration-300 hover:scale-[1.02] relative overflow-hidden",
                           isActive
-                            ? "bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
-                            : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200"
+                            ? "bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-900/50 dark:to-blue-800/30 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 shadow-md shadow-blue-100/50 dark:shadow-blue-900/30"
+                            : "text-gray-600 dark:text-gray-400 hover:bg-gradient-to-br hover:from-gray-50 hover:to-gray-100/30 dark:hover:from-gray-800 dark:hover:to-gray-700/30 hover:text-gray-900 dark:hover:text-gray-200 hover:shadow-lg"
                         )}
                       >
-                        <Icon className="h-5 w-5 flex-shrink-0" />
-                        <span className="truncate">{item.title}</span>
+                        {isActive && (
+                          <motion.div
+                            className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 dark:from-blue-400/10 dark:to-indigo-400/10 rounded-2xl"
+                            layoutId="activeMobileIndicator"
+                            transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                          />
+                        )}
+                        <Icon className="h-5 w-5 flex-shrink-0 relative z-10" />
+                        <span className="truncate relative z-10">{item.title}</span>
                         {isActive && (
                           <motion.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
-                            className="ml-auto h-2 w-2 rounded-full bg-blue-500"
+                            className="ml-auto h-2 w-2 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/50 relative z-10"
                           />
                         )}
                       </Link>
@@ -270,20 +277,31 @@ export function Sidebar({ className }: SidebarProps) {
         {showDesktopButton && (
           <motion.div
             key="desktop-button"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            className="fixed top-4 left-4 z-[60] hidden lg:block"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+            className="fixed top-4 left-12 z-[60] hidden lg:block"
           >
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={toggleDesktop}
-              className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-2 border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl cursor-pointer transition-all duration-200 hover:scale-105"
+            <motion.div
+              whileHover={{ scale: 1.1, x: 2 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0.2 }}
             >
-              <Menu className="h-4 w-4 text-gray-700 dark:text-gray-300" />
-            </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={toggleDesktop}
+                className="h-8 w-8 rounded-full bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 backdrop-blur-md border-2 border-gray-300 dark:border-gray-600 shadow-2xl hover:shadow-blue-500/20 dark:hover:shadow-blue-400/20 cursor-pointer transition-all duration-300 hover:border-blue-400 dark:hover:border-blue-500 hover:from-blue-50 hover:to-white dark:hover:from-blue-950 dark:hover:to-gray-800"
+              >
+                <motion.div
+                  animate={{ x: [0, 2, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <ChevronRight className="h-4 w-4 text-gray-700 dark:text-gray-300" />
+                </motion.div>
+              </Button>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -295,28 +313,33 @@ export function Sidebar({ className }: SidebarProps) {
           width: isDesktopCollapsed ? 64 : 256,
         }}
         transition={{
-          duration: 0.4,
-          ease: [0.25, 0.1, 0.25, 1],
+          duration: 0.6,
+          ease: "easeInOut",
         }}
         className={cn(
-          "relative h-full bg-white/95 dark:bg-gray-950/95 backdrop-blur-sm border-r border-gray-200 dark:border-gray-800 shadow-lg overflow-hidden flex flex-col",
+          "relative h-full bg-gradient-to-br from-white via-white to-gray-50/50 dark:from-gray-950 dark:via-gray-950 dark:to-gray-900/50 backdrop-blur-md border-r border-gray-200/50 dark:border-gray-800/50 shadow-xl overflow-visible flex flex-col rounded-r-3xl",
           className
         )}
       >
         {/* Header */}
-        <div className="flex h-16 items-center justify-between px-4 border-b border-gray-200 dark:border-gray-800 relative">
+        <div className="flex h-16 items-center justify-between px-4 border-b border-gradient-to-r from-transparent via-gray-200 to-transparent dark:via-gray-800 relative backdrop-blur-sm rounded-tr-3xl">
           {/* Logo and Title */}
           <div
             className={cn(
-              "flex items-center transition-all duration-[400ms] ease-out",
+              "flex items-center transition-all duration-[600ms] ease-in-out",
               isDesktopCollapsed && "justify-center"
             )}
           >
-            <Building2 className="h-8 w-8 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-indigo-700 rounded-xl blur-md opacity-50" />
+              <div className="relative bg-gradient-to-br from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-indigo-700 p-2 rounded-xl shadow-lg">
+                <Building2 className="h-5 w-5 text-white flex-shrink-0" />
+              </div>
+            </div>
 
             <span
               className={cn(
-                "text-xl font-bold text-gray-800 dark:text-gray-200 whitespace-nowrap transition-all duration-[400ms] ease-out ml-3",
+                "text-xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-600 dark:from-white dark:via-gray-100 dark:to-gray-300 bg-clip-text text-transparent whitespace-nowrap transition-all duration-[600ms] ease-in-out ml-3",
                 isDesktopCollapsed
                   ? "opacity-0 w-0 ml-0"
                   : "opacity-100 w-auto ml-3"
@@ -329,27 +352,38 @@ export function Sidebar({ className }: SidebarProps) {
           {/* Control Buttons */}
           <div
             className={cn(
-              "flex items-center space-x-2 transition-all duration-[400ms] ease-out",
+              "flex items-center space-x-2 transition-all duration-[600ms] ease-in-out",
               isDesktopCollapsed
                 ? "opacity-0 scale-95"
                 : "opacity-100 scale-100"
             )}
           >
             {/* Desktop collapse button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleDesktop}
-              className="hidden lg:flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 h-8 w-8 cursor-pointer transition-colors duration-200 hover:scale-110"
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0.2 }}
             >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleDesktop}
+                className="hidden lg:flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-gradient-to-br hover:from-gray-100 hover:to-gray-50 dark:hover:from-gray-800 dark:hover:to-gray-900 h-8 w-8 cursor-pointer transition-all duration-300 rounded-lg hover:shadow-md"
+              >
+                <motion.div
+                  animate={{ x: [0, -2, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </motion.div>
+              </Button>
+            </motion.div>
           </div>
         </div>
 
         {/* Navigation */}
         <nav
-          className={cn("flex-1 space-y-2", isDesktopCollapsed ? "p-2" : "p-4")}
+          className={cn("flex-1 space-y-2 overflow-visible", isDesktopCollapsed ? "p-2" : "p-4")}
         >
           {menuItems.map((item) => {
             const Icon = item.icon;
@@ -362,25 +396,33 @@ export function Sidebar({ className }: SidebarProps) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center rounded-xl text-sm font-medium transition-all duration-[400ms] ease-out cursor-pointer group",
+                  "flex items-center rounded-2xl text-sm font-medium transition-all duration-[600ms] ease-in-out cursor-pointer group relative overflow-hidden",
                   isActive
-                    ? "bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
-                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200 hover:scale-105",
+                    ? "bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-900/50 dark:to-blue-800/30 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-700/50 shadow-md shadow-blue-100 dark:shadow-blue-900/30"
+                    : "text-gray-600 dark:text-gray-400 hover:bg-gradient-to-br hover:from-gray-50 hover:to-gray-100/30 dark:hover:from-gray-800 dark:hover:to-gray-700/30 hover:text-gray-900 dark:hover:text-gray-200 hover:scale-105 hover:shadow-lg",
                   isDesktopCollapsed
                     ? "justify-center p-3 mx-auto w-12 h-12"
                     : "px-4 py-3"
                 )}
               >
+                {isActive && (
+                  <motion.div
+                    layoutId="activeIndicator"
+                    className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 dark:from-blue-400/10 dark:to-indigo-400/10 rounded-2xl"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
                 <Icon
                   className={cn(
-                    "flex-shrink-0",
-                    isDesktopCollapsed ? "h-6 w-6" : "h-5 w-5"
+                    "flex-shrink-0 relative z-10",
+                    isDesktopCollapsed ? "h-6 w-6" : "h-5 w-5",
+                    isActive && "drop-shadow-md"
                   )}
                 />
 
                 <span
                   className={cn(
-                    "truncate transition-all duration-[400ms] ease-out ml-3",
+                    "truncate transition-all duration-[600ms] ease-in-out ml-3 relative z-10",
                     isDesktopCollapsed
                       ? "opacity-0 w-0 ml-0"
                       : "opacity-100 w-auto ml-3"
@@ -408,15 +450,27 @@ export function Sidebar({ className }: SidebarProps) {
         </nav>
 
         {/* Footer */}
-        <div className="border-t border-gray-200 dark:border-gray-800 p-4">
+        <div 
+          className={cn(
+            "border-t border-gray-200 dark:border-gray-800 bg-gradient-to-t from-gray-50/30 to-transparent dark:from-gray-900/30 dark:to-transparent backdrop-blur-sm rounded-br-3xl transition-all duration-[600ms] ease-in-out",
+            isDesktopCollapsed ? "p-2" : "p-4"
+          )}
+        >
           <div
             className={cn(
-              "flex items-center transition-all duration-[400ms] ease-out",
-              isDesktopCollapsed ? "justify-center space-y-2 flex-col" : "justify-center space-x-2"
+              "flex items-center justify-center transition-all duration-[600ms] ease-in-out",
+              isDesktopCollapsed ? "flex-col gap-2" : "flex-row gap-2"
             )}
           >
-            <SidebarUserDropdown isCollapsed={isDesktopCollapsed} />
-            <ThemeToggle />
+            <div className={cn(
+              "transition-all duration-[600ms] ease-in-out",
+              isDesktopCollapsed ? "w-auto" : "w-full"
+            )}>
+              <SidebarUserDropdown isCollapsed={isDesktopCollapsed} />
+            </div>
+            <div className="transition-all duration-[600ms] ease-in-out">
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       </motion.aside>
