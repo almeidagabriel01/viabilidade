@@ -25,7 +25,7 @@ const fetchCepData = async (cep: string) => {
   try {
     const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
     const data = await response.json();
-    
+
     if (data.erro) return null;
     return data;
   } catch {
@@ -33,38 +33,7 @@ const fetchCepData = async (cep: string) => {
   }
 };
 
-export function LocationStep({ control, setValue, cepValue, ruaValue, bairroValue, cidadeValue, ufValue }: LocationStepProps) {
-  // Auto-completar endereço quando CEP for inserido
-  useEffect(() => {
-    const handleCepLookup = async () => {
-      const cleanCep = cepValue?.replace(/\D/g, '') || '';
-      
-      if (cleanCep.length === 8) {
-        const data = await fetchCepData(cepValue);
-        
-        if (data && !data.erro) {
-          // Só sobrescreve os campos se estiverem vazios E a API retornar dados
-          if (!ruaValue && data.logradouro) {
-            setValue('rua', data.logradouro);
-          }
-          if (!bairroValue && data.bairro) {
-            setValue('bairro', data.bairro);
-          }
-          if (!cidadeValue && data.localidade) {
-            setValue('cidade', data.localidade);
-          }
-          if (!ufValue && data.uf) {
-            setValue('uf', data.uf);
-          }
-        }
-      }
-    };
-
-    // Debounce para evitar muitas chamadas
-    const timeoutId = setTimeout(handleCepLookup, 500);
-    return () => clearTimeout(timeoutId);
-  }, [cepValue, setValue, ruaValue, bairroValue, cidadeValue, ufValue]);
-
+export function LocationStep({ control, setValue, cepValue }: LocationStepProps) {
   return (
     <motion.div
       key="location"
@@ -74,7 +43,7 @@ export function LocationStep({ control, setValue, cepValue, ruaValue, bairroValu
       transition={{ duration: 0.3, ease: "easeInOut" }}
       className="space-y-6"
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <FormField<CompanyFormData>
           control={control}
           name="endereco"
@@ -100,126 +69,6 @@ export function LocationStep({ control, setValue, cepValue, ruaValue, bairroValu
                   ref={field.ref}
                   disabled={field.disabled}
                   className="w-full"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField<CompanyFormData>
-          control={control}
-          name="rua"
-          render={({ field }) => (
-            <FormItem className="space-y-3">
-              <FormLabel className="text-base font-medium text-gray-700 dark:text-gray-300">
-                Rua *
-              </FormLabel>
-              <FormControl>
-                <AdvancedInput
-                  placeholder="Nome da rua"
-                  value={typeof field.value === "string" ? field.value : ""} onChange={field.onChange} onBlur={field.onBlur} name={field.name} ref={field.ref} disabled={field.disabled}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField<CompanyFormData>
-          control={control}
-          name="numero"
-          render={({ field }) => (
-            <FormItem className="space-y-3">
-              <FormLabel className="text-base font-medium text-gray-700 dark:text-gray-300">
-                Número *
-              </FormLabel>
-              <FormControl>
-                <AdvancedInput
-                  placeholder="123"
-                  value={typeof field.value === "string" ? field.value : ""} onChange={field.onChange} onBlur={field.onBlur} name={field.name} ref={field.ref} disabled={field.disabled}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField<CompanyFormData>
-          control={control}
-          name="complemento"
-          render={({ field }) => (
-            <FormItem className="space-y-3">
-              <FormLabel className="text-base font-medium text-gray-700 dark:text-gray-300">
-                Complemento
-              </FormLabel>
-              <FormControl>
-                <AdvancedInput
-                  placeholder="Apto 101, Sala 2B, etc."
-                  value={typeof field.value === "string" ? field.value : ""} onChange={field.onChange} onBlur={field.onBlur} name={field.name} ref={field.ref} disabled={field.disabled}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField<CompanyFormData>
-          control={control}
-          name="bairro"
-          render={({ field }) => (
-            <FormItem className="space-y-3">
-              <FormLabel className="text-base font-medium text-gray-700 dark:text-gray-300">
-                Bairro *
-              </FormLabel>
-              <FormControl>
-                <AdvancedInput
-                  placeholder="Nome do bairro"
-                  value={typeof field.value === "string" ? field.value : ""} onChange={field.onChange} onBlur={field.onBlur} name={field.name} ref={field.ref} disabled={field.disabled}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField<CompanyFormData>
-          control={control}
-          name="cidade"
-          render={({ field }) => (
-            <FormItem className="space-y-3">
-              <FormLabel className="text-base font-medium text-gray-700 dark:text-gray-300">
-                Cidade *
-              </FormLabel>
-              <FormControl>
-                <AdvancedInput
-                  placeholder="Nome da cidade"
-                  value={typeof field.value === "string" ? field.value : ""} onChange={field.onChange} onBlur={field.onBlur} name={field.name} ref={field.ref} disabled={field.disabled}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField<CompanyFormData>
-          control={control}
-          name="uf"
-          render={({ field }) => (
-            <FormItem className="space-y-3">
-              <FormLabel className="text-base font-medium text-gray-700 dark:text-gray-300">
-                UF *
-              </FormLabel>
-              <FormControl>
-                <AdvancedInput
-                  placeholder="SP"
-                  maxLength={2}
-                  value={typeof field.value === "string" ? field.value : ""}
-                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
-                  onBlur={field.onBlur}
-                  name={field.name}
-                  ref={field.ref}
-                  disabled={field.disabled}
                 />
               </FormControl>
               <FormMessage />

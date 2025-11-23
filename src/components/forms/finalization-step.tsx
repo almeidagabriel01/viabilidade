@@ -19,10 +19,6 @@ export function FinalizationStep({ watch, isLoading }: FinalizationStepProps) {
       icon: MapPin,
       data: [
         { label: "CEP", value: formData.endereco || "—" },
-        { label: "Endereço", value: `${formData.rua || "—"}, ${formData.numero || "—"}` },
-        { label: "Complemento", value: formData.complemento || "—" },
-        { label: "Bairro", value: formData.bairro || "—" },
-        { label: "Cidade/UF", value: `${formData.cidade || "—"}/${formData.uf || "—"}` },
       ]
     },
     {
@@ -30,8 +26,9 @@ export function FinalizationStep({ watch, isLoading }: FinalizationStepProps) {
       icon: Building2,
       data: [
         { label: "CNAE", value: formData.cnae || "—" },
-        { label: "Tipo", value: formData.isMei ? "MEI" : "Empresa" },
-        { label: "Capital Inicial", value: formData.capitalInicial ? `R$ ${formData.capitalInicial.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : "—" },
+        { label: "Natureza Jurídica", value: formData.naturezaJuridica ? formData.naturezaJuridica.toString() : "—" },
+        { label: "Qualificação do Responsável", value: formData.qualificacaoDoResponsavel ? formData.qualificacaoDoResponsavel.toString() : "—" },
+        { label: "Período de incubação MEI", value: formData.isMei ? "Sim" : "Não" },
       ]
     }
   ];
@@ -72,7 +69,7 @@ export function FinalizationStep({ watch, isLoading }: FinalizationStepProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 + (index * 0.1) }}
-              className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm"
+              className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6 shadow-sm"
             >
               <div className="flex items-center space-x-3 mb-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/50">

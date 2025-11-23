@@ -36,7 +36,7 @@ export function CNAESelect({ value, onValueChange, placeholder }: CNAESelectProp
   const inputRef = useRef<HTMLInputElement>(null);
 
   const selectedOption = cnaeOptions.find(option => option.codigo === value);
-  
+
   // Filtrar opções baseado no termo de busca
   const filteredOptions = cnaeOptions.filter(option =>
     option.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -81,7 +81,7 @@ export function CNAESelect({ value, onValueChange, placeholder }: CNAESelectProp
       <div
         onClick={() => setOpen(!open)}
         className={cn(
-          "w-full h-14 px-4 text-left font-normal bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 cursor-pointer rounded-2xl transition-all duration-300 focus:shadow-lg focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-400/10 focus:outline-none",
+          "w-full max-w-full h-14 px-4 text-left font-normal bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 cursor-pointer rounded-2xl transition-all duration-300 focus:shadow-lg focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-400/10 focus:outline-none overflow-hidden",
           !value && "text-gray-500 dark:text-gray-400",
           open && "border-blue-500 dark:border-blue-400 ring-4 ring-blue-500/10 dark:ring-blue-400/10"
         )}
@@ -94,26 +94,23 @@ export function CNAESelect({ value, onValueChange, placeholder }: CNAESelectProp
           }
         }}
       >
-        <div className="flex items-center justify-between w-full h-full">
+        <div className="flex items-center justify-between w-full h-full gap-2">
           {selectedOption ? (
-            <div className="flex flex-col items-start justify-center min-w-0 flex-1">
-              <span className="font-semibold text-blue-600 dark:text-blue-400 text-base">
+            <div className="grid flex-1 text-left">
+              <span className="font-semibold text-blue-600 dark:text-blue-400 text-base truncate">
                 {selectedOption.codigo}
               </span>
-              <span className="text-sm text-gray-600 dark:text-gray-400 truncate max-w-full">
-                {selectedOption.descricao.length > 45 
-                  ? `${selectedOption.descricao.substring(0, 45)}...` 
-                  : selectedOption.descricao
-                }
+              <span className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                {selectedOption.descricao}
               </span>
             </div>
           ) : (
-            <span className="text-base text-gray-500 dark:text-gray-400 flex items-center h-full">
+            <span className="text-base text-gray-500 dark:text-gray-400 flex items-center h-full truncate flex-1">
               {placeholder || "Selecione um CNAE..."}
             </span>
           )}
-          
-          <div className="flex items-center space-x-2 ml-3">
+
+          <div className="flex items-center space-x-2 shrink-0">
             {value && (
               <div
                 onClick={(e) => {

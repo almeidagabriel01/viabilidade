@@ -28,7 +28,7 @@ export function CompanyDataSummary({ result }: CompanyDataSummaryProps) {
               <MapPin className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Localização</p>
-                <p className="font-semibold text-gray-800 dark:text-gray-200">{result.companyData.cidade}, {result.companyData.uf}</p>
+                <p className="font-semibold text-gray-800 dark:text-gray-200">CEP: {result.companyData.endereco}</p>
               </div>
             </div>
             <div className="flex items-center space-x-3">
@@ -41,8 +41,8 @@ export function CompanyDataSummary({ result }: CompanyDataSummaryProps) {
             <div className="flex items-center space-x-3">
               <DollarSign className="w-5 h-5 text-purple-600 dark:text-purple-400" />
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Capital Inicial</p>
-                <p className="font-semibold text-gray-800 dark:text-gray-200">R$ {result.companyData.capitalInicial.toLocaleString()}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Natureza Jurídica</p>
+                <p className="font-semibold text-gray-800 dark:text-gray-200">{result.companyData.naturezaJuridica}</p>
               </div>
             </div>
           </div>

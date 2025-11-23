@@ -145,18 +145,19 @@ function isValidCompanyData(): boolean {
 
 function calculateViability(data: CompanyData): { resultType: "positive" | "moderate" | "negative", score: number } {
   let score = 50; // Base score
-  
-  // Fatores de Capital (max +20)
-  if (data.capitalInicial >= 100000) score += 20;
-  else if (data.capitalInicial >= 50000) score += 15;
-  else if (data.capitalInicial >= 20000) score += 10;
-  else if (data.capitalInicial >= 5000) score += 5;
-  
-  // Fatores Regionais (max +15)
-  if (data.uf === 'SP') score += 15;
-  else if (['RJ', 'MG', 'RS', 'PR', 'SC'].includes(data.uf)) score += 10;
+
+  // Fatores de Natureza Jurídica (max +20)
+  // Mock logic: some legal natures might be more viable or stable
+  if (data.naturezaJuridica === 2062) score += 20; // LTDA
+  else if (data.naturezaJuridica === 2135) score += 15; // Empresário Individual
+  else if (data.naturezaJuridica === 2305) score += 10; // EIRELI
   else score += 5;
-  
+
+  // Fatores Regionais (max +15)
+  // Since we don't have UF anymore in the form data directly (only CEP), we skip this or assume neutral
+  // Ideally we would fetch UF from CEP here, but for now we just give a base score
+  score += 10;
+
   // Fatores de CNAE/Nicho (max +15)
   const promisingCnaes = ['47', '56', '62', '70', '85']; // Varejo, Alimentação, TI, Imobiliário, Educação
   if (promisingCnaes.some(prefix => data.cnae.startsWith(prefix))) {
@@ -167,13 +168,13 @@ function calculateViability(data: CompanyData): { resultType: "positive" | "mode
 
   // Normalização para 0-100
   score = Math.min(100, Math.max(0, score));
-  
+
   // Determinação do resultado
   // Score >= 70 é positivo
   // Score >= 40 e < 70 é moderado
   // Score < 40 é negativo
   let resultType: "positive" | "moderate" | "negative";
-  
+
   if (score >= 70) {
     resultType = "positive";
   } else if (score >= 40) {
@@ -181,7 +182,7 @@ function calculateViability(data: CompanyData): { resultType: "positive" | "mode
   } else {
     resultType = "negative";
   }
-  
+
   return { resultType, score };
 }
 

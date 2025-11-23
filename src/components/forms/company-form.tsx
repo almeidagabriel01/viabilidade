@@ -26,7 +26,7 @@ const steps = [
   },
   {
     id: 2,
-    title: "Dados da Empresa", 
+    title: "Dados da Empresa",
     description: "Informações sobre a empresa e negócio",
     icon: Building2
   },
@@ -66,19 +66,16 @@ export function CompanyForm() {
     switch (currentStep) {
       case 1: {
         const hasRequiredFields = !!(
-          watchedValues.endereco?.trim() && 
-          watchedValues.rua?.trim() && 
-          watchedValues.numero?.trim() && 
-          watchedValues.bairro?.trim() && 
-          watchedValues.cidade?.trim() && 
-          watchedValues.uf?.trim()
+          watchedValues.endereco?.trim() &&
+          watchedValues.endereco.length >= 8
         );
         return hasRequiredFields;
       }
       case 2: {
         const hasRequiredFields = !!(
-          watchedValues.cnae?.trim() && 
-          watchedValues.capitalInicial && watchedValues.capitalInicial > 0
+          watchedValues.cnae?.trim() &&
+          watchedValues.naturezaJuridica && watchedValues.naturezaJuridica > 0 &&
+          watchedValues.qualificacaoDoResponsavel && watchedValues.qualificacaoDoResponsavel > 0
         );
         return hasRequiredFields;
       }
@@ -93,14 +90,10 @@ export function CompanyForm() {
     switch (currentStep) {
       case 1:
         return (
-          <LocationStep 
-            control={form.control as unknown as Control<CompanyFormData>} 
+          <LocationStep
+            control={form.control as unknown as Control<CompanyFormData>}
             setValue={form.setValue}
             cepValue={form.watch('endereco') || ''}
-            ruaValue={form.watch('rua')}
-            bairroValue={form.watch('bairro')}
-            cidadeValue={form.watch('cidade')}
-            ufValue={form.watch('uf')}
           />
         );
       case 2:
@@ -113,7 +106,7 @@ export function CompanyForm() {
   };
 
   return (
-    <motion.div 
+    <motion.div
       className="w-full max-w-4xl mx-auto"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -128,7 +121,7 @@ export function CompanyForm() {
             <span className="text-center">Análise de Viabilidade Empresarial</span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="px-6 pb-6">
+        <CardContent className="px-4 sm:px-6 pb-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit((data) => onSubmit(data as unknown as CompanyFormData))} className="space-y-6">
               {/* Step Indicator */}

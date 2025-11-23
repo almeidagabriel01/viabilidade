@@ -1,14 +1,16 @@
 export interface CompanyData {
-  endereco: string;
-  rua: string;
-  numero: string;
-  complemento?: string;
-  bairro: string;
-  cidade: string;
-  uf: string;
+  endereco: string; // CEP
   cnae: string;
   isMei: boolean;
-  capitalInicial: number;
+  naturezaJuridica: number;
+  qualificacaoDoResponsavel: number;
+  // Optional fields for backward compatibility or internal use if needed, but removing from main interface as requested
+  rua?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
+  cidade?: string;
+  uf?: string;
 }
 
 export interface ViaCEPResponse {
@@ -25,11 +27,11 @@ export interface ViaCEPResponse {
   erro?: boolean;
 }
 
-export type AnalysisResultType = 
-  | "positive" 
+export type AnalysisResultType =
+  | "positive"
   | "moderate"
-  | "negative" 
-  | "inadequate_use" 
+  | "negative"
+  | "inadequate_use"
   | "excessive_use";
 
 export interface AnalysisResult {

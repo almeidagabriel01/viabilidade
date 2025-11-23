@@ -17,7 +17,7 @@ export function useResultData(analysisId?: string) {
       try {
         let companyData: CompanyData | null = null;
         let storedAnalysis = null;
-        
+
         if (analysisId) {
           // Buscar dados específicos da análise por ID
           const analysisData = getAnalysisDataById(analysisId);
@@ -28,12 +28,12 @@ export function useResultData(analysisId?: string) {
           const formData = getFormData();
           companyData = formData;
         }
-        
+
         // Se não encontrou dados, retornar erro
         if (!companyData) {
           throw new Error('Dados da análise não encontrados');
         }
-        
+
         if (DEBUG_RESULT_TYPE) {
           const analysisResult: AnalysisResponse = {
             result: resultConfigs[DEBUG_RESULT_TYPE],
@@ -46,11 +46,11 @@ export function useResultData(analysisId?: string) {
           setResult(analysisResult);
         } else {
           const analysisResult = await analyzeViability(companyData);
-          
+
           // Se temos uma análise armazenada com score, garantir que o tipo de resultado seja consistente
           if (storedAnalysis?.score !== undefined) {
             analysisResult.viabilityScore = storedAnalysis.score;
-            
+
             // Recalcular o tipo de resultado baseado no score armazenado
             let correctResultType: "positive" | "moderate" | "negative";
             if (storedAnalysis.score >= 70) {
@@ -60,24 +60,24 @@ export function useResultData(analysisId?: string) {
             } else {
               correctResultType = "negative";
             }
-            
+
             // Atualizar o resultado apenas se o tipo for diferente
-            if (analysisResult.result.type !== correctResultType && 
-                (correctResultType === 'positive' || correctResultType === 'moderate' || correctResultType === 'negative')) {
+            if (analysisResult.result.type !== correctResultType &&
+              (correctResultType === 'positive' || correctResultType === 'moderate' || correctResultType === 'negative')) {
               analysisResult.result = resultConfigs[correctResultType];
             }
           }
-          
+
           // Usar a data da análise armazenada se disponível
           if (storedAnalysis?.dataAnalise) {
             analysisResult.analysisDate = storedAnalysis.dataAnalise;
           }
-          
+
           setResult(analysisResult);
         }
       } catch (error) {
         console.error('Erro ao carregar resultado:', error);
-        
+
         // Tentar buscar dados como fallback
         let companyData: CompanyData | null = null;
         if (analysisId) {
@@ -86,23 +86,18 @@ export function useResultData(analysisId?: string) {
         if (!companyData) {
           companyData = getFormData();
         }
-        
+
         // Se ainda não tem dados, usar valores padrão
         if (!companyData) {
           companyData = {
             endereco: "00000-000",
-            rua: "Endereço não encontrado",
-            numero: "S/N",
-            complemento: "",
-            bairro: "N/A",
-            cidade: "N/A",
-            uf: "SP",
             cnae: "0000-0-00",
             isMei: false,
-            capitalInicial: 0
+            naturezaJuridica: 0,
+            qualificacaoDoResponsavel: 0
           };
         }
-        
+
         const fallbackResult: AnalysisResponse = {
           result: resultConfigs['inadequate_use'],
           companyData: companyData,

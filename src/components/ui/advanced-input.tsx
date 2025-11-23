@@ -30,7 +30,7 @@ export const AdvancedInput = forwardRef<HTMLInputElement, AdvancedInputProps>(
             {label}
           </motion.label>
         )}
-        
+
         <motion.div
           className="relative"
           transition={{ type: "spring", stiffness: 400, damping: 17 }}
@@ -40,11 +40,11 @@ export const AdvancedInput = forwardRef<HTMLInputElement, AdvancedInputProps>(
               {icon}
             </div>
           )}
-          
+
           <input
             ref={ref}
             className={cn(
-              "w-full h-12 px-4 text-base bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600",
+              "w-full max-w-full h-14 px-4 text-base bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600",
               "focus:border-blue-500 dark:focus:border-blue-400 rounded-2xl transition-all duration-300",
               "focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-400/10 focus:shadow-lg",
               "placeholder:text-gray-400 dark:placeholder:text-gray-500",
@@ -55,7 +55,7 @@ export const AdvancedInput = forwardRef<HTMLInputElement, AdvancedInputProps>(
             {...props}
           />
         </motion.div>
-        
+
         {error && (
           <motion.p
             className="text-sm text-red-500 dark:text-red-400"
