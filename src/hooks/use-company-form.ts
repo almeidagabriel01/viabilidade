@@ -10,7 +10,7 @@ import {
   getCurrentAnalysisId,
   storeAnalysis,
   getAnalysisById,
-  clearCurrentAnalysisId,
+
   setCurrentAnalysisId
 } from "@/lib/storage/analysis-storage";
 import { storeAnalysisData, getAnalysisDataById } from "@/lib/storage/analysis-data-storage";
@@ -86,7 +86,7 @@ export function useCompanyForm() {
     storeAnalysis(initialAnalysis);
 
     analysisInitialized.current = true;
-  }, []);
+  }, [form]);
 
   // Salvar dados da análise conforme o usuário preenche
   useEffect(() => {

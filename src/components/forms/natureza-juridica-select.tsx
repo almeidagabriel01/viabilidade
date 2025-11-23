@@ -63,7 +63,6 @@ export function NaturezaJuridicaSelect({ value, onValueChange, placeholder }: Na
 
     const handleClear = (e: React.MouseEvent | React.KeyboardEvent) => {
         e.stopPropagation();
-        // @ts-ignore - onValueChange expects number, but we might want to clear it. 
         // Ideally we should allow undefined or null, but for now passing 0 or handling in parent.
         // Checking usage, usually we want to reset.
         onValueChange?.(0);

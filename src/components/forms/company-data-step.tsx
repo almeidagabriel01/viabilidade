@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { AdvancedInput } from "@/components/ui/advanced-input";
+
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { GenericSelect } from "./generic-select";
 import { CNAESelect } from "./cnae-select";

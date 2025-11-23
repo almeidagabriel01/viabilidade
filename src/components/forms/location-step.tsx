@@ -3,37 +3,21 @@
 import { motion } from "framer-motion";
 import { AdvancedInput } from "@/components/ui/advanced-input";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Control, UseFormSetValue } from "react-hook-form";
+import { Control } from "react-hook-form";
 import { CompanyFormData } from "@/lib/validations/company-form";
-import { useEffect } from "react";
+
 
 interface LocationStepProps {
   control: Control<CompanyFormData>;
-  setValue: UseFormSetValue<CompanyFormData>;
-  cepValue: string;
   ruaValue?: string;
   bairroValue?: string;
   cidadeValue?: string;
   ufValue?: string;
 }
 
-// Função para buscar dados do CEP via ViaCEP
-const fetchCepData = async (cep: string) => {
-  const cleanCep = cep.replace(/\D/g, '');
-  if (cleanCep.length !== 8) return null;
 
-  try {
-    const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
-    const data = await response.json();
 
-    if (data.erro) return null;
-    return data;
-  } catch {
-    return null;
-  }
-};
-
-export function LocationStep({ control, setValue, cepValue }: LocationStepProps) {
+export function LocationStep({ control }: LocationStepProps) {
   return (
     <motion.div
       key="location"

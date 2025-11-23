@@ -12,8 +12,7 @@ import {
   getStatusText,
 } from "../../lib/analysisUtils";
 import { setCurrentAnalysisId, clearCurrentAnalysisId } from "@/lib/storage/analysis-storage";
-import { storeAnalysisData } from "@/lib/storage/analysis-data-storage";
-import { getFormData } from "@/lib/storage/form-data-storage";
+
 
 interface AnalysisCardProps {
   analysis: Analysis;

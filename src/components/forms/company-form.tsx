@@ -92,8 +92,6 @@ export function CompanyForm() {
         return (
           <LocationStep
             control={form.control as unknown as Control<CompanyFormData>}
-            setValue={form.setValue}
-            cepValue={form.watch('endereco') || ''}
           />
         );
       case 2:

@@ -5,7 +5,7 @@ import { MapPin, Navigation, ChevronDown, ChevronUp } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { AdvancedCard } from "@/components/ui/advanced-card";
 import { RecommendationBar } from "./recommendation-bar";
-import { AnalysisResponse, LocationCoordinates } from "@/types/company";
+import { AnalysisResponse } from "@/types/company";
 import { CheckCircle, XCircle, AlertTriangle, Clock } from "lucide-react";
 import dynamic from 'next/dynamic';
 
@@ -14,13 +14,13 @@ const MapComponent = dynamic(
   () => import('react-leaflet').then(async (mod) => {
     // Importa a configuração do Leaflet
     await import('@/lib/leaflet-config');
-    
+
     const { MapContainer, TileLayer, Marker, Popup, useMap } = mod;
-    
+
     // Componente para botão de recentralizar
     function RecenterButton({ position }: { position: [number, number] }) {
       const map = useMap();
-      
+
       return (
         <button
           onClick={() => map.setView(position, 18)}
@@ -48,7 +48,7 @@ const MapComponent = dynamic(
         </button>
       );
     }
-    
+
     return function Map({ position, address }: { position: [number, number]; address: string }) {
       return (
         <MapContainer
@@ -119,12 +119,12 @@ export function MapResultContainer({ result }: MapResultContainerProps) {
 
         if (response.ok) {
           const data = await response.json();
-          
+
           if (data && data.candidates && data.candidates.length > 0) {
             const candidate = data.candidates[0];
             const lat = candidate.location.y;
             const lng = candidate.location.x;
-            
+
             setMapPosition([lat, lng]);
           } else {
             console.warn('⚠️ ArcGIS não encontrou resultados.');
@@ -141,12 +141,12 @@ export function MapResultContainer({ result }: MapResultContainerProps) {
   }, [isMapOpen, fullAddress, mapPosition, result.companyData]);
 
   const IconComponent = iconMap[result.result.icon as keyof typeof iconMap];
-  
+
   const viabilityScore = result.viabilityScore ?? (
     result.result.type === 'positive' ? 85 :
-    result.result.type === 'negative' ? 25 :
-    result.result.type === 'inadequate_use' ? 0 :
-    result.result.type === 'excessive_use' ? 0 : 50
+      result.result.type === 'negative' ? 25 :
+        result.result.type === 'inadequate_use' ? 0 :
+          result.result.type === 'excessive_use' ? 0 : 50
   );
 
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`;
@@ -233,7 +233,7 @@ export function MapResultContainer({ result }: MapResultContainerProps) {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-3 flex-shrink-0">
                     <a
                       href={googleMapsUrl}
