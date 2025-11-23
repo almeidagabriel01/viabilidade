@@ -53,9 +53,9 @@ export function useResultData(analysisId?: string) {
 
             // Recalcular o tipo de resultado baseado no score armazenado
             let correctResultType: "positive" | "moderate" | "negative";
-            if (storedAnalysis.score >= 70) {
+            if (storedAnalysis.score >= 75) {
               correctResultType = "positive";
-            } else if (storedAnalysis.score >= 40) {
+            } else if (storedAnalysis.score >= 55) {
               correctResultType = "moderate";
             } else {
               correctResultType = "negative";

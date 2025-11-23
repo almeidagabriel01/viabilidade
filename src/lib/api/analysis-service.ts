@@ -170,14 +170,14 @@ function calculateViability(data: CompanyData): { resultType: "positive" | "mode
   score = Math.min(100, Math.max(0, score));
 
   // Determinação do resultado
-  // Score >= 70 é positivo
-  // Score >= 40 e < 70 é moderado
-  // Score < 40 é negativo
+  // Score >= 75 é positivo
+  // Score >= 55 e < 75 é moderado
+  // Score < 55 é negativo
   let resultType: "positive" | "moderate" | "negative";
 
-  if (score >= 70) {
+  if (score >= 75) {
     resultType = "positive";
-  } else if (score >= 40) {
+  } else if (score >= 55) {
     resultType = "moderate";
   } else {
     resultType = "negative";

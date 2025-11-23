@@ -11,7 +11,7 @@ interface RecommendationBarProps {
 export function RecommendationBar({ score, showLabel = true }: RecommendationBarProps) {
   // Determinar cor e status baseado na pontuação
   const getScoreConfig = (score: number) => {
-    if (score >= 70) {
+    if (score >= 75) {
       return {
         color: "from-green-500 to-emerald-600",
         bgColor: "bg-green-100 dark:bg-green-900/30",
@@ -20,7 +20,7 @@ export function RecommendationBar({ score, showLabel = true }: RecommendationBar
         label: "Alta Viabilidade",
         message: "Excelente localização para o negócio!"
       };
-    } else if (score >= 40) {
+    } else if (score >= 55) {
       return {
         color: "from-yellow-500 to-orange-500",
         bgColor: "bg-yellow-100 dark:bg-yellow-900/30",
@@ -88,7 +88,7 @@ export function RecommendationBar({ score, showLabel = true }: RecommendationBar
             className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent"
           />
         </motion.div>
-        
+
         {/* Marcadores na barra */}
         <div className="absolute inset-0 flex justify-between items-center px-2 pointer-events-none">
           <span className="text-xs font-medium text-gray-600 dark:text-gray-300">0%</span>
@@ -118,15 +118,15 @@ export function RecommendationBar({ score, showLabel = true }: RecommendationBar
       <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400 mt-2">
         <div className="flex items-center gap-1">
           <div className="w-3 h-3 rounded-full bg-red-500"></div>
-          <span>Baixa (0-39%)</span>
+          <span>Baixa (0-54%)</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-          <span>Moderada (40-69%)</span>
+          <span>Moderada (55-74%)</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-3 h-3 rounded-full bg-green-500"></div>
-          <span>Alta (70-100%)</span>
+          <span>Alta (75-100%)</span>
         </div>
       </div>
     </div>
