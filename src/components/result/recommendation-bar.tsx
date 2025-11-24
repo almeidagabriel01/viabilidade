@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { THRESHOLD_POSITIVE, THRESHOLD_MODERATE, VIABILITY_RANGES } from "@/lib/config/thresholds";
 
 interface RecommendationBarProps {
   score: number; // 0 a 100
@@ -11,7 +12,7 @@ interface RecommendationBarProps {
 export function RecommendationBar({ score, showLabel = true }: RecommendationBarProps) {
   // Determinar cor e status baseado na pontuação
   const getScoreConfig = (score: number) => {
-    if (score >= 75) {
+    if (score >= THRESHOLD_POSITIVE) {
       return {
         color: "from-green-500 to-emerald-600",
         bgColor: "bg-green-100 dark:bg-green-900/30",
@@ -20,7 +21,7 @@ export function RecommendationBar({ score, showLabel = true }: RecommendationBar
         label: "Alta Viabilidade",
         message: "Excelente localização para o negócio!"
       };
-    } else if (score >= 55) {
+    } else if (score >= THRESHOLD_MODERATE) {
       return {
         color: "from-yellow-500 to-orange-500",
         bgColor: "bg-yellow-100 dark:bg-yellow-900/30",
@@ -72,12 +73,13 @@ export function RecommendationBar({ score, showLabel = true }: RecommendationBar
           initial={{ width: 0 }}
           animate={{ width: `${score}%` }}
           transition={{ delay: 0.5, duration: 1, ease: "easeOut" }}
-          className={`h-full bg-gradient-to-r ${config.color} rounded-full shadow-lg relative`}
+          className={`h-full bg-gradient-to-r ${config.color} rounded-full shadow-lg relative overflow-hidden`}
         >
           {/* Efeito de brilho */}
           <motion.div
             animate={{
               x: ["-100%", "200%"],
+              opacity: [0, 1, 0.5, 0], // Fade in/out suave
             }}
             transition={{
               duration: 2,
@@ -85,7 +87,7 @@ export function RecommendationBar({ score, showLabel = true }: RecommendationBar
               repeatDelay: 1,
               ease: "easeInOut",
             }}
-            className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+            className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-white/40 to-transparent"
           />
         </motion.div>
 
@@ -118,15 +120,15 @@ export function RecommendationBar({ score, showLabel = true }: RecommendationBar
       <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400 mt-2">
         <div className="flex items-center gap-1">
           <div className="w-3 h-3 rounded-full bg-red-500"></div>
-          <span>Baixa (0-54%)</span>
+          <span>{VIABILITY_RANGES.NEGATIVE.label} ({VIABILITY_RANGES.NEGATIVE.min}-{VIABILITY_RANGES.NEGATIVE.max}%)</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-          <span>Moderada (55-74%)</span>
+          <span>{VIABILITY_RANGES.MODERATE.label} ({VIABILITY_RANGES.MODERATE.min}-{VIABILITY_RANGES.MODERATE.max}%)</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-3 h-3 rounded-full bg-green-500"></div>
-          <span>Alta (75-100%)</span>
+          <span>{VIABILITY_RANGES.POSITIVE.label} ({VIABILITY_RANGES.POSITIVE.min}-{VIABILITY_RANGES.POSITIVE.max}%)</span>
         </div>
       </div>
     </div>

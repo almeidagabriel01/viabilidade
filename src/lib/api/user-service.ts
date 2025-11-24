@@ -11,7 +11,16 @@ export interface User {
     data_criacao: string;
 }
 
+const pendingUserRequests: Record<string, Promise<User | null> | undefined> = {};
+
 export async function fetchUserData(userId: number | string): Promise<User | null> {
+    const requestKey = String(userId);
+
+    // Se já tiver uma requisição em andamento para este usuário, retorna a promise dela
+    if (pendingUserRequests[requestKey]) {
+        return pendingUserRequests[requestKey];
+    }
+
     const token = tokenStorage.getToken();
     const headers: HeadersInit = {
         'Content-Type': 'application/json',
@@ -21,18 +30,26 @@ export async function fetchUserData(userId: number | string): Promise<User | nul
         headers['Authorization'] = `Bearer ${token}`;
     }
 
-    try {
-        const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
-            headers,
-        });
+    const requestPromise = (async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+                headers,
+            });
 
-        if (!response.ok) {
-            throw new Error(`Erro ao buscar dados do usuário: ${response.statusText}`);
+            if (!response.ok) {
+                throw new Error(`Erro ao buscar dados do usuário: ${response.statusText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error("Erro ao buscar dados do usuário:", error);
+            return null;
+        } finally {
+            delete pendingUserRequests[requestKey];
         }
+    })();
 
-        return await response.json();
-    } catch (error) {
-        console.error("Erro ao buscar dados do usuário:", error);
-        return null;
-    }
+    pendingUserRequests[requestKey] = requestPromise;
+
+    return requestPromise;
 }

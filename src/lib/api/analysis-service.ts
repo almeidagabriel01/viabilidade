@@ -61,15 +61,19 @@ async function callBackendAPI(companyData: CompanyData): Promise<BackendAnalysis
  * Converte pontuação do backend (0.0-1.0) para score do frontend (0-100)
  * e determina o tipo de resultado
  */
+import { THRESHOLD_POSITIVE, THRESHOLD_MODERATE } from "@/lib/config/thresholds";
+
+// ... existing code ...
+
 export function calculateResultType(pontuacao: number): { resultType: "positive" | "moderate" | "negative", score: number } {
   // Converter pontuação de 0-1 para 0-100
   const score = Math.round(pontuacao * 100);
 
   let resultType: "positive" | "moderate" | "negative";
 
-  if (score >= 75) {
+  if (score >= THRESHOLD_POSITIVE) {
     resultType = "positive";
-  } else if (score >= 55) {
+  } else if (score >= THRESHOLD_MODERATE) {
     resultType = "moderate";
   } else {
     resultType = "negative";

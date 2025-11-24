@@ -58,6 +58,7 @@ export function CompanyForm() {
   };
 
   const handleSubmit = async () => {
+    if (isLoading) return;
     const formData = form.getValues();
     await onSubmit(formData as unknown as CompanyFormData);
   };

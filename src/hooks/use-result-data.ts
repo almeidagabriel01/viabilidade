@@ -6,6 +6,7 @@ import { analyzeViability } from "@/lib/api/analysis-service";
 import { getFormData } from "@/lib/storage/form-data-storage";
 import { getAnalysisDataById } from "@/lib/storage/analysis-data-storage";
 import { getAnalysisById } from "@/lib/storage/analysis-storage";
+import { THRESHOLD_POSITIVE, THRESHOLD_MODERATE } from "@/lib/config/thresholds";
 
 const DEBUG_RESULT_TYPE: AnalysisResultType | null = null; //'positive', 'negative', 'inadequate_use', 'excessive_use' e null
 
@@ -61,11 +62,13 @@ export function useResultData(analysisId?: string) {
           if (storedAnalysis?.score !== undefined) {
             analysisResult.viabilityScore = storedAnalysis.score;
 
+            // ... existing code ...
+
             // Recalcular o tipo de resultado baseado no score armazenado
             let correctResultType: "positive" | "moderate" | "negative";
-            if (storedAnalysis.score >= 75) {
+            if (storedAnalysis.score >= THRESHOLD_POSITIVE) {
               correctResultType = "positive";
-            } else if (storedAnalysis.score >= 55) {
+            } else if (storedAnalysis.score >= THRESHOLD_MODERATE) {
               correctResultType = "moderate";
             } else {
               correctResultType = "negative";

@@ -28,10 +28,14 @@ export function ProfileContent() {
   });
 
   useEffect(() => {
+    let isMounted = true;
+
     const loadUserData = async () => {
-      if (authUser) {
+      if (authUser?.id) {
         // Tentar buscar dados completos do backend
         const backendUser = await fetchUserData(authUser.id);
+
+        if (!isMounted) return;
 
         if (backendUser) {
           setUser({
@@ -55,8 +59,13 @@ export function ProfileContent() {
         }
       }
     };
+
     loadUserData();
-  }, [authUser]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [authUser?.id, authUser?.name, authUser?.email]); // Dependências mais específicas para evitar loops
 
   const { analyses, isLoading: analysesLoading, refreshAnalyses } = useAnalyses();
   const [activeTab, setActiveTab] = useState<string>("info");

@@ -155,8 +155,11 @@ export function useCompanyForm() {
   }, [form]);
 
   const onSubmit = async (data: CompanyFormData) => {
-    // **CRIAR analysisId ANTES de qualquer coisa**
-    const newAnalysisId = `analysis_${Date.now()}`;
+    if (isLoading) return;
+
+    // Tentar usar o ID da análise atual (rascunho) ou criar um novo se não existir
+    const currentId = getCurrentAnalysisId();
+    const newAnalysisId = currentId || `analysis_${Date.now()}`;
 
     try {
       setIsLoading(true);
