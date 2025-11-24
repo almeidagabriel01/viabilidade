@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { MapPin, Calendar, ChevronRight } from "lucide-react";
+import { MapPin, Calendar, ChevronRight, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Badge } from "../ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,28 +16,37 @@ import { setCurrentAnalysisId, clearCurrentAnalysisId } from "@/lib/storage/anal
 
 interface AnalysisCardProps {
   analysis: Analysis;
+  onDelete?: () => void;
 }
 
-export function AnalysisCard({ analysis }: AnalysisCardProps) {
+export function AnalysisCard({ analysis, onDelete }: AnalysisCardProps) {
   const router = useRouter();
 
-  const handleViewResult = () => {
+  const handleViewResult = (e: React.MouseEvent) => {
+    e.stopPropagation();
     // Limpar análise atual e navegar para o resultado
     clearCurrentAnalysisId();
     router.push(`/resultado?analysisId=${analysis.id}`);
   };
 
-  const handleContinue = () => {
+  const handleContinue = (e: React.MouseEvent) => {
+    e.stopPropagation();
     // Definir a análise atual e navegar para o formulário
     setCurrentAnalysisId(analysis.id);
     router.push('/uso-modelo');
   };
 
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onDelete) onDelete();
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 sm:p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer group"
+      className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 sm:p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer group relative"
+      onClick={analysis.status === "completa" ? () => router.push(`/resultado?analysisId=${analysis.id}`) : undefined}
     >
       <div className="flex flex-col lg:flex-row lg:items-center justify-between space-y-3 lg:space-y-0">
         <div className="flex-1 min-w-0">
@@ -106,6 +115,17 @@ export function AnalysisCard({ analysis }: AnalysisCardProps) {
               >
                 <span className="hidden sm:inline">Ver Resultado</span>
                 <span className="sm:hidden">👁</span>
+              </Button>
+            )}
+            {onDelete && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                onClick={handleDelete}
+                title="Excluir análise"
+              >
+                <Trash2 className="h-4 w-4" />
               </Button>
             )}
           </div>

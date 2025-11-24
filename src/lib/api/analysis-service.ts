@@ -1,5 +1,4 @@
 import type { AnalysisResponse, CompanyData, AnalysisResultType, BackendAnalysisRequest, BackendAnalysisResponse } from '@/types/company';
-import { getTestCount, incrementTestCount, getMaxTests } from '@/lib/storage/test-counter-storage';
 import { tokenStorage } from '@/lib/api/auth';
 import { toast } from 'react-toastify';
 
@@ -62,7 +61,7 @@ async function callBackendAPI(companyData: CompanyData): Promise<BackendAnalysis
  * Converte pontuação do backend (0.0-1.0) para score do frontend (0-100)
  * e determina o tipo de resultado
  */
-function calculateResultType(pontuacao: number): { resultType: "positive" | "moderate" | "negative", score: number } {
+export function calculateResultType(pontuacao: number): { resultType: "positive" | "moderate" | "negative", score: number } {
   // Converter pontuação de 0-1 para 0-100
   const score = Math.round(pontuacao * 100);
 
@@ -79,156 +78,94 @@ function calculateResultType(pontuacao: number): { resultType: "positive" | "mod
   return { resultType, score };
 }
 
+export function createAnalysisResult(score: number, companyData: CompanyData, analysisDate: string = new Date().toISOString()): AnalysisResponse {
+  const { resultType } = calculateResultType(score / 100); // calculateResultType expects 0-1
+
+  const resultConfigs = {
+    positive: {
+      type: "positive" as AnalysisResultType,
+      title: "Avaliação Positiva",
+      description: "Parabéns! Sua análise de viabilidade empresarial apresentou resultados muito promissores. O local e o nicho de mercado escolhidos demonstram grande potencial para o sucesso do seu negócio.",
+      details: [
+        "Localização estratégica com alta demanda",
+        "Mercado em crescimento no setor escolhido",
+        "Baixa concorrência na região",
+        "Potencial de expansão identificado"
+      ],
+      recommendations: [
+        "Inicie o planejamento detalhado do negócio",
+        "Busque parcerias estratégicas na região",
+        "Considere investir em marketing local",
+        "Avalie opções de financiamento para expansão"
+      ],
+      icon: "CheckCircle",
+      color: "text-green-600",
+      bgColor: "bg-green-50"
+    },
+    moderate: {
+      type: "moderate" as AnalysisResultType,
+      title: "Viabilidade Moderada",
+      description: "Sua análise indica um potencial moderado. Existem pontos positivos, mas alguns desafios precisam ser superados. Recomenda-se cautela e um estudo mais aprofundado antes de prosseguir.",
+      details: [
+        "Localização com demanda razoável",
+        "Concorrência moderada na área",
+        "Necessidade de diferenciação no mercado",
+        "Custos operacionais podem ser desafiadores"
+      ],
+      recommendations: [
+        "Realize uma pesquisa de mercado mais detalhada",
+        "Refine seu plano de negócios",
+        "Identifique seus diferenciais competitivos",
+        "Considere locais alternativos na mesma região"
+      ],
+      icon: "AlertTriangle",
+      color: "text-yellow-600",
+      bgColor: "bg-yellow-50"
+    },
+    negative: {
+      type: "negative" as AnalysisResultType,
+      title: "Viabilidade Baixa",
+      description: "A análise aponta desafios significativos para a viabilidade do negócio neste local e nicho. Os riscos parecem superar as oportunidades no momento. Recomenda-se reconsiderar a localização ou o modelo de negócio.",
+      details: [
+        "Alta saturação de mercado na região",
+        "Demanda insuficiente para o nicho",
+        "Custos de ocupação elevados",
+        "Tendência de queda no setor local"
+      ],
+      recommendations: [
+        "Busque uma localização diferente",
+        "Considere pivotar o modelo de negócio",
+        "Avalie outros nichos de mercado",
+        "Aguarde um momento mais favorável"
+      ],
+      icon: "XCircle",
+      color: "text-red-600",
+      bgColor: "bg-red-50"
+    }
+  };
+
+  return {
+    result: resultConfigs[resultType],
+    companyData: companyData,
+    analysisDate: analysisDate,
+    viabilityScore: score
+  };
+}
+
 export async function analyzeViability(companyData: CompanyData): Promise<AnalysisResponse> {
-  const currentTestCount = getTestCount();
-  const maxTests = getMaxTests();
-
-  // Verificar limite de testes
-  if (currentTestCount >= maxTests) { // Changed to >= to match the logic of "exceeded"
-    return {
-      result: {
-        type: "excessive_use",
-        title: "Excesso de Uso",
-        description: "Você atingiu o limite máximo de análises permitidas por sessão. Para continuar utilizando o sistema, aguarde ou entre em contato para obter mais informações.",
-        details: [
-          "Limite de 2 análises por sessão atingido",
-          "Sistema de proteção contra abuso ativo",
-          "Análises anteriores ainda válidas",
-          "Novo acesso disponível em breve"
-        ],
-        recommendations: [
-          "Aguarde o reset do limite",
-          "Entre em contato para mais análises",
-          "Revise os resultados anteriores",
-          "Considere um plano premium"
-        ],
-        icon: "Clock",
-        color: "text-blue-600",
-        bgColor: "bg-blue-50"
-      },
-      companyData: companyData,
-      analysisDate: new Date().toISOString(),
-      testCount: currentTestCount, // No increment here, as it's an error state
-      maxTests
-    };
-  }
-
   try {
     // Chamar API do backend
     const backendResponse = await callBackendAPI(companyData);
 
-    // Verificar se a resposta foi bem-sucedida
-    if (backendResponse.status !== "success") {
-      throw new Error(backendResponse.message || "Erro na análise de viabilidade");
-    }
+    // Processar resposta
+    const { score } = calculateResultType(backendResponse.data.resultado.pontuacao);
 
-    // Calcular tipo de resultado baseado na pontuação do backend
-    const { resultType, score } = calculateResultType(backendResponse.data.resultado.pontuacao);
-
-    const resultConfigs = {
-      positive: {
-        type: "positive" as AnalysisResultType,
-        title: "Avaliação Positiva",
-        description: "Parabéns! Sua análise de viabilidade empresarial apresentou resultados muito promissores. O local e o nicho de mercado escolhidos demonstram grande potencial para o sucesso do seu negócio.",
-        details: [
-          "Localização estratégica com alta demanda",
-          "Mercado em crescimento no setor escolhido",
-          "Baixa concorrência na região",
-          "Potencial de expansão identificado"
-        ],
-        recommendations: [
-          "Inicie o planejamento detalhado do negócio",
-          "Pesquise fornecedores e parceiros locais",
-          "Desenvolva um plano de marketing específico",
-          "Considere investir em capacitação técnica"
-        ],
-        icon: "CheckCircle",
-        color: "text-green-600",
-        bgColor: "bg-green-50"
-      },
-      moderate: {
-        type: "moderate" as AnalysisResultType,
-        title: "Avaliação Moderada",
-        description: "A análise indica um potencial moderado. Existem boas oportunidades, mas também desafios que exigem atenção e planejamento cuidadoso para garantir o sucesso.",
-        details: [
-          "Localização com demanda estável",
-          "Concorrência presente mas superável",
-          "Necessidade de diferenciação no mercado",
-          "Custos operacionais dentro da média"
-        ],
-        recommendations: [
-          "Refine seu plano de negócios",
-          "Analise profundamente a concorrência",
-          "Busque diferenciais competitivos",
-          "Considere estratégias de marketing agressivas"
-        ],
-        icon: "AlertTriangle",
-        color: "text-yellow-600",
-        bgColor: "bg-yellow-50"
-      },
-      negative: {
-        type: "negative" as AnalysisResultType,
-        title: "Avaliação Negativa",
-        description: "A análise identificou alguns desafios significativos para a viabilidade do negócio na localização e nicho escolhidos. Recomendamos uma revisão estratégica antes de prosseguir.",
-        details: [
-          "Alta concorrência na região",
-          "Demanda limitada para o setor",
-          "Custos operacionais elevados",
-          "Barreiras de entrada significativas"
-        ],
-        recommendations: [
-          "Considere outras localizações",
-          "Avalie nichos de mercado alternativos",
-          "Pesquise modelos de negócio diferentes",
-          "Busque orientação especializada"
-        ],
-        icon: "XCircle",
-        color: "text-red-600",
-        bgColor: "bg-red-50"
-      }
-    };
-
-    incrementTestCount(); // Increment count only on successful analysis
-    return {
-      result: resultConfigs[resultType],
-      companyData: companyData,
-      analysisDate: backendResponse.data.data_analise,
-      testCount: currentTestCount + 1,
-      maxTests,
-      viabilityScore: score
-    };
+    // Criar objeto de resposta completo usando createAnalysisResult para consistência
+    return createAnalysisResult(score, companyData);
 
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Erro ao processar a análise';
-    console.error('Erro ao chamar API do backend:', error);
-
-    // Em caso de erro, retornar resultado de uso inadequado
-    return {
-      result: {
-        type: "inadequate_use",
-        title: "Erro na Análise",
-        description: "Ocorreu um erro durante a análise de viabilidade. Isso pode ser devido a problemas de conectividade ou dados inválidos. Por favor, verifique sua conexão e tente novamente.",
-        details: [
-          "Erro ao conectar com o servidor de análise",
-          "Verifique sua conexão com a internet",
-          "Os dados fornecidos podem estar incorretos",
-          "Tente novamente em alguns instantes"
-        ],
-        recommendations: [
-          "Verifique sua conexão com a internet",
-          "Confirme que todos os dados estão corretos",
-          "Tente realizar a análise novamente",
-          "Se o problema persistir, entre em contato com o suporte"
-        ],
-        icon: "AlertTriangle",
-        color: "text-yellow-600",
-        bgColor: "bg-yellow-50"
-      },
-      companyData: companyData,
-      analysisDate: new Date().toISOString(),
-      testCount: currentTestCount + 1,
-      maxTests
-    };
+    console.error('Erro na análise de viabilidade:', error);
+    throw error;
   }
 }
 

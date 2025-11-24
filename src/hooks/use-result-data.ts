@@ -42,10 +42,17 @@ export function useResultData(analysisId?: string) {
             result: resultConfigs[DEBUG_RESULT_TYPE],
             companyData: companyData,
             analysisDate: storedAnalysis?.dataAnalise || new Date().toISOString(),
-            testCount: DEBUG_RESULT_TYPE === 'excessive_use' ? 2 : 1,
-            maxTests: 2,
             viabilityScore: storedAnalysis?.score
           };
+          setResult(analysisResult);
+        } else if (storedAnalysis?.score !== undefined) {
+          // Se já temos o score armazenado, não precisamos chamar a API novamente
+          const { createAnalysisResult } = await import("@/lib/api/analysis-service");
+          const analysisResult = createAnalysisResult(
+            storedAnalysis.score,
+            companyData,
+            storedAnalysis.dataAnalise || new Date().toISOString()
+          );
           setResult(analysisResult);
         } else {
           const analysisResult = await analyzeViability(companyData);

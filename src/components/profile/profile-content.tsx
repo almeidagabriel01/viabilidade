@@ -1,4 +1,4 @@
-// components/ProfileContent.tsx (Componente Principal Corrigido)
+// components/ProfileContent.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -12,6 +12,9 @@ import { AnalysesTab } from "./analysis-tab";
 import { StatsTab } from "./stats-tab";
 import { useAnalyses } from "@/hooks/use-analyses";
 import { useAuth } from "@/contexts/auth-context";
+import { fetchUserData } from "@/lib/api/user-service";
+import { deleteAnalysis } from "@/lib/storage/analysis-storage";
+import { toast } from "react-toastify";
 
 export function ProfileContent() {
   const { user: authUser } = useAuth();
@@ -20,67 +23,55 @@ export function ProfileContent() {
     nome: "",
     email: "",
     telefone: "",
-    endereco: "",
-    cidade: "",
-    uf: "",
     dataCadastro: "",
     ultimoAcesso: "",
   });
 
   useEffect(() => {
-    if (authUser) {
-      setUser({
-        id: authUser.id,
-        nome: authUser.name,
-        email: authUser.email,
-        telefone: "(11) 99999-9999", // Placeholder ou buscar de outra fonte se disponível
-        endereco: "Não informado",
-        cidade: "Não informado",
-        uf: "UF",
-        dataCadastro: new Date().toISOString().split('T')[0], // Placeholder
-        ultimoAcesso: new Date().toISOString().split('T')[0],
-      });
-    }
+    const loadUserData = async () => {
+      if (authUser) {
+        // Tentar buscar dados completos do backend
+        const backendUser = await fetchUserData(authUser.id);
+
+        if (backendUser) {
+          setUser({
+            id: String(backendUser.id),
+            nome: backendUser.name,
+            email: backendUser.email,
+            telefone: backendUser.phone || "(11) 99999-9999",
+            dataCadastro: backendUser.data_criacao ? backendUser.data_criacao.split('T')[0] : new Date().toISOString().split('T')[0],
+            ultimoAcesso: new Date().toISOString().split('T')[0],
+          });
+        } else {
+          // Fallback para dados do auth context
+          setUser({
+            id: authUser.id,
+            nome: authUser.name,
+            email: authUser.email,
+            telefone: "(11) 99999-9999",
+            dataCadastro: new Date().toISOString().split('T')[0],
+            ultimoAcesso: new Date().toISOString().split('T')[0],
+          });
+        }
+      }
+    };
+    loadUserData();
   }, [authUser]);
 
-  const { analyses, isLoading: analysesLoading } = useAnalyses();
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedUser, setEditedUser] = useState<UserProfile>(user);
+  const { analyses, isLoading: analysesLoading, refreshAnalyses } = useAnalyses();
   const [activeTab, setActiveTab] = useState<string>("info");
 
-  // Atualiza editedUser quando user mudar
-  useEffect(() => {
-    setEditedUser(user);
-  }, [user]);
-
-  const handleEditToggle = () => {
-    if (isEditing) {
-      setEditedUser(user); // Reset changes
+  const handleDeleteAnalysis = (id: string) => {
+    if (confirm("Tem certeza que deseja excluir esta análise?")) {
+      deleteAnalysis(id);
+      toast.success("Análise excluída com sucesso!");
+      refreshAnalyses();
     }
-    setIsEditing(!isEditing);
-  };
-
-  const handleSave = () => {
-    // Aqui faria a chamada à API para salvar os dados
-    setUser(editedUser);
-    setIsEditing(false);
-  };
-
-  const handleInputChange = (field: keyof UserProfile, value: string) => {
-    setEditedUser((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
   };
 
   return (
     <div className="w-full mx-auto space-y-4 p-4 sm:p-6 lg:p-8">
-      <ProfileHeader
-        user={user}
-        isEditing={isEditing}
-        onEditToggle={handleEditToggle}
-        showEditButton={activeTab === "info"}
-      />
+      <ProfileHeader user={user} />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -119,19 +110,16 @@ export function ProfileContent() {
 
           {/* Aba de Informações Pessoais */}
           <TabsContent value="info">
-            <PersonalInfoTab
-              user={user}
-              editedUser={editedUser}
-              isEditing={isEditing}
-              onInputChange={handleInputChange}
-              onSave={handleSave}
-              onCancel={handleEditToggle}
-            />
+            <PersonalInfoTab user={user} />
           </TabsContent>
 
           {/* Aba de Análises */}
           <TabsContent value="analyses">
-            <AnalysesTab analyses={analyses} isLoading={analysesLoading} />
+            <AnalysesTab
+              analyses={analyses}
+              isLoading={analysesLoading}
+              onDelete={handleDeleteAnalysis}
+            />
           </TabsContent>
 
           {/* Aba de Estatísticas */}

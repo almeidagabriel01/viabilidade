@@ -12,7 +12,7 @@ export function useAnalyses() {
       try {
         const storedAnalyses = getAnalyses();
         // Ordenar por data de atualização (mais recente primeiro)
-        const sortedAnalyses = storedAnalyses.sort((a, b) => 
+        const sortedAnalyses = storedAnalyses.sort((a, b) =>
           new Date(b.dataAtualizacao).getTime() - new Date(a.dataAtualizacao).getTime()
         );
         setAnalyses(sortedAnalyses);
@@ -28,7 +28,7 @@ export function useAnalyses() {
 
     // Subscrever a mudanças
     const unsubscribe = subscribeToAnalysisChanges((updatedAnalyses) => {
-      const sortedAnalyses = updatedAnalyses.sort((a, b) => 
+      const sortedAnalyses = updatedAnalyses.sort((a, b) =>
         new Date(b.dataAtualizacao).getTime() - new Date(a.dataAtualizacao).getTime()
       );
       setAnalyses(sortedAnalyses);
@@ -37,5 +37,17 @@ export function useAnalyses() {
     return unsubscribe;
   }, []);
 
-  return { analyses, isLoading };
+  const refreshAnalyses = () => {
+    try {
+      const storedAnalyses = getAnalyses();
+      const sortedAnalyses = storedAnalyses.sort((a, b) =>
+        new Date(b.dataAtualizacao).getTime() - new Date(a.dataAtualizacao).getTime()
+      );
+      setAnalyses(sortedAnalyses);
+    } catch (error) {
+      console.error('Erro ao recarregar análises:', error);
+    }
+  };
+
+  return { analyses, isLoading, refreshAnalyses };
 }

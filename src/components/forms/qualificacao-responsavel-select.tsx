@@ -1,19 +1,10 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Check, ChevronsUpDown, Search, X } from "lucide-react";
+import { Check, ChevronsUpDown, Search, X, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-// Mock de dados Qualificação do Responsável
-const qualificacaoOptions = [
-    { codigo: 65, descricao: "Titular Pessoa Física Residente ou Domiciliado no Brasil" },
-    { codigo: 49, descricao: "Sócio-Administrador" },
-    { codigo: 22, descricao: "Sócio" },
-    { codigo: 16, descricao: "Presidente" },
-    { codigo: 10, descricao: "Diretor" },
-    { codigo: 5, descricao: "Administrador" },
-    { codigo: 50, descricao: "Empresário" },
-];
+import { fetchQualificacoes, HelperItem } from "@/lib/api/helpers-service";
 
 interface QualificacaoResponsavelSelectProps {
     value?: number;
@@ -24,13 +15,34 @@ interface QualificacaoResponsavelSelectProps {
 export function QualificacaoResponsavelSelect({ value, onValueChange, placeholder }: QualificacaoResponsavelSelectProps) {
     const [open, setOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
+    const [qualificacoes, setQualificacoes] = useState<HelperItem[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
     const containerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const selectedOption = qualificacaoOptions.find(option => option.codigo === value);
+    useEffect(() => {
+        const loadQualificacoes = async () => {
+            setIsLoading(true);
+            setError(null);
+            try {
+                const data = await fetchQualificacoes();
+                setQualificacoes(data);
+            } catch (error) {
+                console.error("Erro ao carregar qualificações:", error);
+                setError("Erro ao carregar opções. Tente novamente.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        loadQualificacoes();
+    }, []);
+
+    const selectedOption = qualificacoes.find(option => Number(option.codigo) === value);
 
     // Filtrar opções baseado no termo de busca
-    const filteredOptions = qualificacaoOptions.filter(option =>
+    const filteredOptions = qualificacoes.filter(option =>
         option.codigo.toString().includes(searchTerm) ||
         option.descricao.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -55,8 +67,8 @@ export function QualificacaoResponsavelSelect({ value, onValueChange, placeholde
         }
     }, [open]);
 
-    const handleSelect = (codigo: number) => {
-        onValueChange?.(codigo);
+    const handleSelect = (codigo: number | string) => {
+        onValueChange?.(Number(codigo));
         setOpen(false);
         setSearchTerm("");
     };
@@ -71,23 +83,34 @@ export function QualificacaoResponsavelSelect({ value, onValueChange, placeholde
         <div ref={containerRef} className="relative w-full">
             {/* Trigger Button */}
             <div
-                onClick={() => setOpen(!open)}
+                onClick={() => !isLoading && !error && setOpen(!open)}
                 className={cn(
                     "w-full max-w-full h-14 px-4 text-left font-normal bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 cursor-pointer rounded-2xl transition-all duration-300 focus:shadow-lg focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-400/10 focus:outline-none overflow-hidden",
                     !value && "text-gray-500 dark:text-gray-400",
-                    open && "border-blue-500 dark:border-blue-400 ring-4 ring-blue-500/10 dark:ring-blue-400/10"
+                    open && "border-blue-500 dark:border-blue-400 ring-4 ring-blue-500/10 dark:ring-blue-400/10",
+                    (isLoading || !!error) && "opacity-50 cursor-not-allowed",
+                    !!error && "border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/10"
                 )}
                 tabIndex={0}
                 role="button"
                 onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
-                        setOpen(!open);
+                        if (!isLoading && !error) setOpen(!open);
                     }
                 }}
             >
                 <div className="flex items-center justify-between w-full h-full gap-2">
-                    {selectedOption ? (
+                    {isLoading ? (
+                        <span className="text-base text-gray-500 dark:text-gray-400 flex items-center h-full truncate flex-1">
+                            Carregando qualificações...
+                        </span>
+                    ) : error ? (
+                        <span className="text-base text-red-500 dark:text-red-400 flex items-center h-full truncate flex-1 gap-2">
+                            <AlertCircle className="h-4 w-4" />
+                            {error}
+                        </span>
+                    ) : selectedOption ? (
                         <div className="grid flex-1 text-left">
                             <span className="font-semibold text-blue-600 dark:text-blue-400 text-base truncate">
                                 {selectedOption.codigo}
@@ -103,7 +126,7 @@ export function QualificacaoResponsavelSelect({ value, onValueChange, placeholde
                     )}
 
                     <div className="flex items-center space-x-2 shrink-0">
-                        {value ? (
+                        {value && !isLoading && !error ? (
                             <div
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -151,7 +174,11 @@ export function QualificacaoResponsavelSelect({ value, onValueChange, placeholde
 
                     {/* Options List */}
                     <div className="max-h-60 overflow-y-auto">
-                        {filteredOptions.length === 0 ? (
+                        {isLoading ? (
+                            <div className="p-4 text-center text-gray-500 dark:text-gray-400">
+                                <p>Carregando...</p>
+                            </div>
+                        ) : filteredOptions.length === 0 ? (
                             <div className="p-4 text-center text-gray-500 dark:text-gray-400">
                                 <Search className="h-8 w-8 mx-auto mb-2 text-gray-300" />
                                 <p>Nenhuma opção encontrada</p>
@@ -163,7 +190,7 @@ export function QualificacaoResponsavelSelect({ value, onValueChange, placeholde
                                     onClick={() => handleSelect(option.codigo)}
                                     className={cn(
                                         "w-full px-4 py-3 text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0 cursor-pointer",
-                                        value === option.codigo && "bg-blue-50 dark:bg-blue-900/20"
+                                        value === Number(option.codigo) && "bg-blue-50 dark:bg-blue-900/20"
                                     )}
                                     role="button"
                                     tabIndex={0}
@@ -180,7 +207,7 @@ export function QualificacaoResponsavelSelect({ value, onValueChange, placeholde
                                                 <span className="font-semibold text-blue-600 dark:text-blue-400 text-sm">
                                                     {option.codigo}
                                                 </span>
-                                                {value === option.codigo && (
+                                                {value === Number(option.codigo) && (
                                                     <Check className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                                                 )}
                                             </div>
@@ -198,3 +225,4 @@ export function QualificacaoResponsavelSelect({ value, onValueChange, placeholde
         </div>
     );
 }
+

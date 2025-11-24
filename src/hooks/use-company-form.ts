@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { companyFormSchema, CompanyFormData } from "@/lib/validations/company-form";
 import { analyzeViability } from "@/lib/api/analysis-service";
 import { storeFormData } from "@/lib/storage/form-data-storage";
-import { incrementTestCount, isTestLimitReached } from "@/lib/storage/test-counter-storage";
 import {
   getCurrentAnalysisId,
   storeAnalysis,
@@ -166,13 +165,6 @@ export function useCompanyForm() {
       storeFormData(data);
       setCurrentAnalysisId(newAnalysisId);
       storeAnalysisData(newAnalysisId, data);
-
-      if (isTestLimitReached()) {
-        router.push(`/resultado?analysisId=${newAnalysisId}`);
-        return;
-      }
-
-      incrementTestCount();
 
       // Criar análise inicial (será atualizada com score depois)
       const initialAnalysis = {

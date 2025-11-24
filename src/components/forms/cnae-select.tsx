@@ -1,27 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Check, ChevronsUpDown, Search, X } from "lucide-react";
+import { Check, ChevronsUpDown, Search, X, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-// Mock de dados CNAE - em produção viria de uma API
-const cnaeOptions = [
-  { codigo: "4711-3/01", descricao: "Comércio varejista de mercadorias em geral, com predominância de produtos alimentícios" },
-  { codigo: "4712-1/00", descricao: "Comércio varejista de mercadorias em lojas de conveniência" },
-  { codigo: "4713-0/01", descricao: "Lojas de departamentos ou magazines" },
-  { codigo: "4721-1/02", descricao: "Padaria e confeitaria com predominância de revenda" },
-  { codigo: "4722-9/01", descricao: "Comércio varejista de carnes - açougues" },
-  { codigo: "4723-7/00", descricao: "Comércio varejista de bebidas" },
-  { codigo: "4724-5/00", descricao: "Comércio varejista de hortifrutigranjeiros" },
-  { codigo: "4729-6/99", descricao: "Comércio varejista de produtos alimentícios em geral ou especializado em produtos alimentícios não especificados anteriormente" },
-  { codigo: "4741-5/00", descricao: "Comércio varejista de tintas e materiais para pintura" },
-  { codigo: "4742-3/00", descricao: "Comércio varejista de material elétrico" },
-  { codigo: "4743-1/00", descricao: "Comércio varejista de vidros" },
-  { codigo: "4744-0/01", descricao: "Comércio varejista de ferragens e ferramentas" },
-  { codigo: "4751-2/01", descricao: "Comércio varejista especializado de equipamentos de telefonia e comunicação" },
-  { codigo: "4752-1/00", descricao: "Comércio varejista especializado de equipamentos de informática" },
-  { codigo: "4753-9/00", descricao: "Comércio varejista especializado de eletrodomésticos e equipamentos de áudio e vídeo" },
-];
+import { fetchCnaes, HelperItem } from "@/lib/api/helpers-service";
 
 interface CNAESelectProps {
   value?: string;
@@ -32,14 +14,35 @@ interface CNAESelectProps {
 export function CNAESelect({ value, onValueChange, placeholder }: CNAESelectProps) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [cnaes, setCnaes] = useState<HelperItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const selectedOption = cnaeOptions.find(option => option.codigo === value);
+  useEffect(() => {
+    const loadCnaes = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await fetchCnaes();
+        setCnaes(data);
+      } catch (error) {
+        console.error("Erro ao carregar CNAEs:", error);
+        setError("Erro ao carregar opções. Tente novamente.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadCnaes();
+  }, []);
+
+  const selectedOption = cnaes.find(option => option.codigo === value);
 
   // Filtrar opções baseado no termo de busca
-  const filteredOptions = cnaeOptions.filter(option =>
-    option.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const filteredOptions = cnaes.filter(option =>
+    option.codigo.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
     option.descricao.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -79,23 +82,34 @@ export function CNAESelect({ value, onValueChange, placeholder }: CNAESelectProp
     <div ref={containerRef} className="relative w-full">
       {/* Trigger Button */}
       <div
-        onClick={() => setOpen(!open)}
+        onClick={() => !isLoading && !error && setOpen(!open)}
         className={cn(
           "w-full max-w-full h-14 px-4 text-left font-normal bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 cursor-pointer rounded-2xl transition-all duration-300 focus:shadow-lg focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10 dark:focus:ring-blue-400/10 focus:outline-none overflow-hidden",
           !value && "text-gray-500 dark:text-gray-400",
-          open && "border-blue-500 dark:border-blue-400 ring-4 ring-blue-500/10 dark:ring-blue-400/10"
+          open && "border-blue-500 dark:border-blue-400 ring-4 ring-blue-500/10 dark:ring-blue-400/10",
+          (isLoading || !!error) && "opacity-50 cursor-not-allowed",
+          !!error && "border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/10"
         )}
         tabIndex={0}
         role="button"
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            setOpen(!open);
+            if (!isLoading && !error) setOpen(!open);
           }
         }}
       >
         <div className="flex items-center justify-between w-full h-full gap-2">
-          {selectedOption ? (
+          {isLoading ? (
+            <span className="text-base text-gray-500 dark:text-gray-400 flex items-center h-full truncate flex-1">
+              Carregando CNAEs...
+            </span>
+          ) : error ? (
+            <span className="text-base text-red-500 dark:text-red-400 flex items-center h-full truncate flex-1 gap-2">
+              <AlertCircle className="h-4 w-4" />
+              {error}
+            </span>
+          ) : selectedOption ? (
             <div className="grid flex-1 text-left">
               <span className="font-semibold text-blue-600 dark:text-blue-400 text-base truncate">
                 {selectedOption.codigo}
@@ -111,7 +125,7 @@ export function CNAESelect({ value, onValueChange, placeholder }: CNAESelectProp
           )}
 
           <div className="flex items-center space-x-2 shrink-0">
-            {value && (
+            {value && !isLoading && !error ? (
               <div
                 onClick={(e) => {
                   e.stopPropagation();
@@ -130,7 +144,7 @@ export function CNAESelect({ value, onValueChange, placeholder }: CNAESelectProp
               >
                 <X className="h-4 w-4 text-gray-400" />
               </div>
-            )}
+            ) : null}
             <ChevronsUpDown className={cn(
               "h-5 w-5 text-gray-400 transition-transform duration-200",
               open && "rotate-180"
@@ -159,7 +173,11 @@ export function CNAESelect({ value, onValueChange, placeholder }: CNAESelectProp
 
           {/* Options List */}
           <div className="max-h-60 overflow-y-auto">
-            {filteredOptions.length === 0 ? (
+            {isLoading ? (
+              <div className="p-4 text-center text-gray-500 dark:text-gray-400">
+                <p>Carregando...</p>
+              </div>
+            ) : filteredOptions.length === 0 ? (
               <div className="p-4 text-center text-gray-500 dark:text-gray-400">
                 <Search className="h-8 w-8 mx-auto mb-2 text-gray-300" />
                 <p>Nenhum CNAE encontrado</p>
@@ -169,17 +187,17 @@ export function CNAESelect({ value, onValueChange, placeholder }: CNAESelectProp
               filteredOptions.map((option) => (
                 <div
                   key={option.codigo}
-                  onClick={() => handleSelect(option.codigo)}
+                  onClick={() => handleSelect(String(option.codigo))}
                   className={cn(
                     "w-full px-4 py-3 text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0 cursor-pointer",
-                    value === option.codigo && "bg-blue-50 dark:bg-blue-900/20"
+                    value === String(option.codigo) && "bg-blue-50 dark:bg-blue-900/20"
                   )}
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
-                      handleSelect(option.codigo);
+                      handleSelect(String(option.codigo));
                     }
                   }}
                 >
@@ -189,7 +207,7 @@ export function CNAESelect({ value, onValueChange, placeholder }: CNAESelectProp
                         <span className="font-semibold text-blue-600 dark:text-blue-400 text-sm">
                           {option.codigo}
                         </span>
-                        {value === option.codigo && (
+                        {value === String(option.codigo) && (
                           <Check className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                         )}
                       </div>
