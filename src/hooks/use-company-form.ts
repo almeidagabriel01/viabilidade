@@ -112,6 +112,12 @@ export function useCompanyForm() {
           qualificacaoDoResponsavel: currentValues.qualificacaoDoResponsavel || 0,
         };
 
+        console.log('💾 Salvando dados da análise:', {
+          analysisId: currentAnalysisId,
+          endereco: companyData.endereco,
+          cnae: companyData.cnae
+        });
+
         storeAnalysisData(currentAnalysisId, companyData);
 
         // Determinar se há dados suficientes para título
@@ -150,54 +156,67 @@ export function useCompanyForm() {
   }, [form]);
 
   const onSubmit = async (data: CompanyFormData) => {
+    // **CRIAR analysisId ANTES de qualquer coisa**
+    const newAnalysisId = `analysis_${Date.now()}`;
+
     try {
       setIsLoading(true);
 
+      // **SEMPRE salvar dados primeiro, antes de qualquer verificação**
+      storeFormData(data);
+      setCurrentAnalysisId(newAnalysisId);
+      storeAnalysisData(newAnalysisId, data);
+
       if (isTestLimitReached()) {
-        router.push('/resultado');
+        router.push(`/resultado?analysisId=${newAnalysisId}`);
         return;
       }
 
       incrementTestCount();
 
-      // Salvar dados do formulário
-      storeFormData(data);
+      // Criar análise inicial (será atualizada com score depois)
+      const initialAnalysis = {
+        id: newAnalysisId,
+        titulo: `CEP: ${data.endereco}`,
+        cnae: data.cnae,
+        endereco: data.endereco,
+        cidade: "",
+        uf: "",
+        status: "completa" as const,
+        score: 0, // Será atualizado depois
+        dataAnalise: new Date().toISOString(),
+        dataAtualizacao: new Date().toISOString(),
+        dadosCompletos: true,
+      };
+      storeAnalysis(initialAnalysis);
 
-      // Executar análise de viabilidade primeiro para obter o score real
-      const analysisResponse = await analyzeViability(data);
-      const viabilityScore = analysisResponse.viabilityScore ?? 0;
+      console.log('💾 Dados salvos com ID:', newAnalysisId);
 
-      // Obter análise atual
-      const currentAnalysisId = getCurrentAnalysisId();
+      // Tentar executar análise de viabilidade para obter o score
+      try {
+        const analysisResponse = await analyzeViability(data);
+        const viabilityScore = analysisResponse.viabilityScore ?? 0;
 
-      if (currentAnalysisId) {
-        // Atualizar análise para completa
+        // Atualizar análise com o score obtido
         const updatedAnalysis = {
-          id: currentAnalysisId,
-          titulo: `CEP: ${data.endereco}`,
-          cnae: data.cnae,
-          endereco: data.endereco,
-          cidade: "", // Não temos mais cidade
-          uf: "", // Não temos mais UF
-          status: "completa" as const,
+          ...initialAnalysis,
           score: viabilityScore,
-          dataAnalise: new Date().toISOString(),
           dataAtualizacao: new Date().toISOString(),
-          dadosCompletos: true,
         };
-
         storeAnalysis(updatedAnalysis);
-        storeAnalysisData(currentAnalysisId, data);
 
-        // Navegar para resultado com o ID da análise
-        router.push(`/resultado?analysisId=${currentAnalysisId}`);
-      } else {
-        console.error('❌ Erro: Nenhuma análise atual encontrada');
-        router.push('/resultado');
+        console.log('✅ Análise atualizada com score:', viabilityScore);
+      } catch (apiError) {
+        console.warn('⚠️ Erro ao chamar API, mas dados foram salvos:', apiError);
+        // Continua mesmo se a API falhar - os dados já foram salvos
       }
+
+      // Navegar para resultado com o ID (sempre, mesmo se API falhou)
+      router.push(`/resultado?analysisId=${newAnalysisId}`);
     } catch (error) {
-      console.error('Erro ao enviar formulário:', error);
-      router.push('/resultado');
+      console.error('❌ Erro ao enviar formulário:', error);
+      // Mesmo em erro, navegar com o ID para mostrar os dados que foram preenchidos
+      router.push(`/resultado?analysisId=${newAnalysisId}`);
     } finally {
       setIsLoading(false);
     }

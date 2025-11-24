@@ -70,3 +70,33 @@ export interface AnalysisResponse {
   coordinates?: LocationCoordinates;
   fullAddress?: string; // Endereço completo formatado para Google Maps
 }
+
+// Interfaces para integração com backend
+export interface BackendAnalysisRequest {
+  localizacao: {
+    cep: string;
+  };
+  empresa: {
+    cnae: string;
+    naturezaJuridica: number;
+    qualificacaoDoResponsavel: number;
+    isMei: boolean;
+  };
+}
+
+export interface BackendAnalysisResponse {
+  status: string;
+  message: string;
+  data: {
+    viabilidade_id: number;
+    resultado: {
+      pontuacao: number; // 0.0 a 1.0
+      detalhes: {
+        analise_localizacao: number;
+        [key: string]: unknown;
+      };
+    };
+    data_analise: string;
+  };
+  code: number;
+}

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { toast } from 'react-toastify';
 import { AnalysisResultType, AnalysisResponse, CompanyData } from "@/types/company";
 import { resultConfigs } from "@/lib/config/result-configs";
 import { analyzeViability } from "@/lib/api/analysis-service";
@@ -11,6 +12,7 @@ const DEBUG_RESULT_TYPE: AnalysisResultType | null = null; //'positive', 'negati
 export function useResultData(analysisId?: string) {
   const [result, setResult] = useState<AnalysisResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadResult = async () => {
@@ -31,6 +33,7 @@ export function useResultData(analysisId?: string) {
 
         // Se não encontrou dados, retornar erro
         if (!companyData) {
+          toast.error('Dados da análise não encontrados');
           throw new Error('Dados da análise não encontrados');
         }
 
@@ -76,7 +79,9 @@ export function useResultData(analysisId?: string) {
           setResult(analysisResult);
         }
       } catch (error) {
-        console.error('Erro ao carregar resultado:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+        toast.error(`Erro ao carregar resultado: ${errorMessage}`);
+        setError(errorMessage);
 
         // Tentar buscar dados como fallback
         let companyData: CompanyData | null = null;
