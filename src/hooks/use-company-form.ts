@@ -28,6 +28,7 @@ export function useCompanyForm() {
       isMei: false,
       naturezaJuridica: 0,
       qualificacaoDoResponsavel: 0,
+      capitalInicial: 0,
     },
   });
 
@@ -55,6 +56,7 @@ export function useCompanyForm() {
           isMei: existingData.isMei || false,
           naturezaJuridica: existingData.naturezaJuridica || 0,
           qualificacaoDoResponsavel: existingData.qualificacaoDoResponsavel || 0,
+          capitalInicial: existingData.capitalInicial || 0,
         };
 
         // Resetar o formulário com os dados
@@ -109,6 +111,7 @@ export function useCompanyForm() {
           isMei: currentValues.isMei ?? false,
           naturezaJuridica: currentValues.naturezaJuridica || 0,
           qualificacaoDoResponsavel: currentValues.qualificacaoDoResponsavel || 0,
+          capitalInicial: currentValues.capitalInicial || 0,
         };
 
         console.log('💾 Salvando dados da análise:', {
@@ -196,9 +199,29 @@ export function useCompanyForm() {
         const updatedAnalysis = {
           ...initialAnalysis,
           score: viabilityScore,
+          cidade: analysisResponse.locationDetails?.cidade || "",
+          uf: analysisResponse.locationDetails?.uf || "",
           dataAtualizacao: new Date().toISOString(),
         };
         storeAnalysis(updatedAnalysis);
+
+        // Se o backend retornou detalhes de localização, atualizar os dados da análise
+        if (analysisResponse.locationDetails) {
+          const updatedCompanyData: CompanyData = {
+            ...data,
+            rua: analysisResponse.locationDetails.rua,
+            bairro: analysisResponse.locationDetails.bairro,
+            cidade: analysisResponse.locationDetails.cidade,
+            uf: analysisResponse.locationDetails.uf,
+          };
+          storeAnalysisData(newAnalysisId, updatedCompanyData);
+          
+          // Armazenar também as coordenadas no localStorage
+          localStorage.setItem(`analysis_location_${newAnalysisId}`, JSON.stringify({
+            latitude: analysisResponse.locationDetails.latitude,
+            longitude: analysisResponse.locationDetails.longitude,
+          }));
+        }
 
         console.log('✅ Análise atualizada com score:', viabilityScore);
       } catch (apiError) {

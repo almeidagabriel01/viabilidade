@@ -38,25 +38,81 @@ export function useResultData(analysisId?: string) {
           throw new Error('Dados da análise não encontrados');
         }
 
+        // Tentar recuperar coordenadas armazenadas
+        let storedLocation: { latitude: string; longitude: string } | null = null;
+        if (analysisId) {
+          const locationData = localStorage.getItem(`analysis_location_${analysisId}`);
+          if (locationData) {
+            try {
+              storedLocation = JSON.parse(locationData);
+            } catch (e) {
+              console.warn('Erro ao recuperar coordenadas:', e);
+            }
+          }
+        }
+
         if (DEBUG_RESULT_TYPE) {
           const analysisResult: AnalysisResponse = {
             result: resultConfigs[DEBUG_RESULT_TYPE],
             companyData: companyData,
             analysisDate: storedAnalysis?.dataAnalise || new Date().toISOString(),
-            viabilityScore: storedAnalysis?.score
+            viabilityScore: storedAnalysis?.score,
+            // Montar locationDetails se temos coordenadas ou dados de endereço
+            locationDetails: storedLocation ? {
+              cep: companyData.endereco,
+              rua: companyData.rua || '',
+              bairro: companyData.bairro || '',
+              cidade: companyData.cidade || '',
+              uf: companyData.uf || '',
+              latitude: storedLocation.latitude,
+              longitude: storedLocation.longitude,
+            } : (companyData.rua ? {
+              cep: companyData.endereco,
+              rua: companyData.rua || '',
+              bairro: companyData.bairro || '',
+              cidade: companyData.cidade || '',
+              uf: companyData.uf || '',
+              latitude: '',
+              longitude: '',
+            } : undefined)
           };
           setResult(analysisResult);
         } else if (storedAnalysis?.score !== undefined) {
           // Se já temos o score armazenado, não precisamos chamar a API novamente
           const { createAnalysisResult } = await import("@/lib/api/analysis-service");
+          
+          // Montar locationDetails se temos coordenadas ou dados de endereço
+          const locationDetails = storedLocation ? {
+            cep: companyData.endereco,
+            rua: companyData.rua || '',
+            bairro: companyData.bairro || '',
+            cidade: companyData.cidade || '',
+            uf: companyData.uf || '',
+            latitude: storedLocation.latitude,
+            longitude: storedLocation.longitude,
+          } : (companyData.rua ? {
+            cep: companyData.endereco,
+            rua: companyData.rua || '',
+            bairro: companyData.bairro || '',
+            cidade: companyData.cidade || '',
+            uf: companyData.uf || '',
+            latitude: '',
+            longitude: '',
+          } : undefined);
+          
           const analysisResult = createAnalysisResult(
             storedAnalysis.score,
             companyData,
-            storedAnalysis.dataAnalise || new Date().toISOString()
+            storedAnalysis.dataAnalise || new Date().toISOString(),
+            undefined,
+            locationDetails
           );
           setResult(analysisResult);
         } else {
           const analysisResult = await analyzeViability(companyData);
+
+          // Se o backend retornou detalhes de localização, o createAnalysisResult já atualizou o companyData
+          // Código redundante removido
 
           // Se temos uma análise armazenada com score, garantir que o tipo de resultado seja consistente
           if (storedAnalysis?.score !== undefined) {
@@ -109,7 +165,8 @@ export function useResultData(analysisId?: string) {
             cnae: "0000-0-00",
             isMei: false,
             naturezaJuridica: 0,
-            qualificacaoDoResponsavel: 0
+            qualificacaoDoResponsavel: 0,
+            capitalInicial: 0
           };
         }
 

@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { GenericSelect } from "./generic-select";
 import { CNAESelect } from "./cnae-select";
 import { Control } from "react-hook-form";
@@ -22,17 +23,17 @@ export function CompanyDataStep({ control }: CompanyDataStepProps) {
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -50 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="space-y-8"
+      className="space-y-4"
     >
-      {/* CNAE Selection */}
-      <div className="space-y-4">
+      {/* Linha 1: CNAE e Natureza Jurídica */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField<CompanyFormData>
           control={control}
           name="cnae"
           render={({ field }) => (
-            <FormItem className="space-y-3">
-              <FormLabel className="text-base font-medium text-gray-700 dark:text-gray-300">
-                CNAE (Código Nacional de Atividade Econômica) *
+            <FormItem className="space-y-2">
+              <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                CNAE <span className="hidden sm:inline">(Código Nacional de Atividade Econômica)</span> *
               </FormLabel>
               <FormControl>
                 <CNAESelect
@@ -44,16 +45,13 @@ export function CompanyDataStep({ control }: CompanyDataStepProps) {
             </FormItem>
           )}
         />
-      </div>
 
-      {/* Natureza Jurídica */}
-      <div className="space-y-4">
         <FormField<CompanyFormData>
           control={control}
           name="naturezaJuridica"
           render={({ field }) => (
-            <FormItem className="space-y-3">
-              <FormLabel className="text-base font-medium text-gray-700 dark:text-gray-300">
+            <FormItem className="space-y-2">
+              <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Natureza Jurídica *
               </FormLabel>
               <FormControl>
@@ -68,14 +66,14 @@ export function CompanyDataStep({ control }: CompanyDataStepProps) {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Qualificação do Responsável */}
+      {/* Linha 2: Qualificação e Capital */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField<CompanyFormData>
           control={control}
           name="qualificacaoDoResponsavel"
           render={({ field }) => (
-            <FormItem className="space-y-3">
-              <FormLabel className="text-base font-medium text-gray-700 dark:text-gray-300">
+            <FormItem className="space-y-2">
+              <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Qualificação do Responsável *
               </FormLabel>
               <FormControl>
@@ -89,24 +87,20 @@ export function CompanyDataStep({ control }: CompanyDataStepProps) {
           )}
         />
 
-        {/* MEI Option - Sim/Não */}
         <FormField<CompanyFormData>
           control={control}
-          name="isMei"
+          name="capitalInicial"
           render={({ field }) => (
-            <FormItem className="space-y-3">
-              <FormLabel className="text-base font-medium text-gray-700 dark:text-gray-300">
-                Período de incubação MEI
+            <FormItem className="space-y-2">
+              <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Capital Inicial (R$) *
               </FormLabel>
               <FormControl>
-                <GenericSelect
-                  value={field.value ? "true" : "false"}
-                  onValueChange={(value) => field.onChange(value === "true")}
-                  options={[
-                    { value: "true", label: "Sim" },
-                    { value: "false", label: "Não" }
-                  ]}
-                  placeholder="Selecione..."
+                <CurrencyInput
+                  placeholder="R$ 0,00"
+                  value={field.value as number}
+                  onChange={field.onChange}
+                  className="w-full h-14 px-4 text-left font-normal bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 rounded-2xl transition-all duration-300 focus-visible:shadow-lg focus-visible:border-blue-500 dark:focus-visible:border-blue-400 focus-visible:ring-4 focus-visible:ring-blue-500/10 dark:focus-visible:ring-blue-400/10 focus-visible:outline-none text-base text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
                 />
               </FormControl>
               <FormMessage />
@@ -114,6 +108,31 @@ export function CompanyDataStep({ control }: CompanyDataStepProps) {
           )}
         />
       </div>
+
+      {/* Linha 3: MEI */}
+      <FormField<CompanyFormData>
+        control={control}
+        name="isMei"
+        render={({ field }) => (
+          <FormItem className="space-y-2">
+            <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Período de incubação MEI
+            </FormLabel>
+            <FormControl>
+              <GenericSelect
+                value={field.value ? "true" : "false"}
+                onValueChange={(value) => field.onChange(value === "true")}
+                options={[
+                  { value: "true", label: "Sim" },
+                  { value: "false", label: "Não" }
+                ]}
+                placeholder="Selecione..."
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </motion.div>
   );
 }

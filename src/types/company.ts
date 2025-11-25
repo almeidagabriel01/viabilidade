@@ -4,6 +4,7 @@ export interface CompanyData {
   isMei: boolean;
   naturezaJuridica: number;
   qualificacaoDoResponsavel: number;
+  capitalInicial: number;
   // Optional fields for backward compatibility or internal use if needed, but removing from main interface as requested
   rua?: string;
   numero?: string;
@@ -12,6 +13,8 @@ export interface CompanyData {
   cidade?: string;
   uf?: string;
 }
+
+
 
 export interface ViaCEPResponse {
   cep: string;
@@ -69,6 +72,16 @@ export interface AnalysisResponse {
   viabilityScore?: number; // Porcentagem de 0 a 100
   coordinates?: LocationCoordinates;
   fullAddress?: string; // Endereço completo formatado para Google Maps
+  viabilidadeId?: number;
+  locationDetails?: {
+    cep: string;
+    rua: string;
+    bairro: string;
+    cidade: string;
+    uf: string;
+    latitude: string;
+    longitude: string;
+  };
 }
 
 // Interfaces para integração com backend
@@ -80,6 +93,7 @@ export interface BackendAnalysisRequest {
     cnae: string;
     naturezaJuridica: number;
     qualificacaoDoResponsavel: number;
+    capitalInicial: number;
     isMei: boolean;
   };
 }
@@ -95,6 +109,15 @@ export interface BackendAnalysisResponse {
         analise_localizacao: number;
         [key: string]: unknown;
       };
+    };
+    localizacao: {
+      cep: string;
+      rua: string;
+      bairro: string;
+      cidade: string;
+      uf: string;
+      latitude: string;
+      longitude: string;
     };
     data_analise: string;
   };

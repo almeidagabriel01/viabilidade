@@ -27,7 +27,11 @@ export const companyFormSchema = z.object({
 
   qualificacaoDoResponsavel: z
     .number()
-    .min(1, "Qualificação do Responsável é obrigatória")
+    .min(1, "Qualificação do Responsável é obrigatória"),
+
+  capitalInicial: z
+    .number()
+    .min(0, "Capital Inicial deve ser maior ou igual a 0")
 });
 
 export type CompanyFormData = z.infer<typeof companyFormSchema>;

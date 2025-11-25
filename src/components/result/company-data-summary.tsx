@@ -10,6 +10,17 @@ interface CompanyDataSummaryProps {
 }
 
 export function CompanyDataSummary({ result }: CompanyDataSummaryProps) {
+  // Usar dados do locationDetails se disponível, senão usar companyData
+  const rua = result.locationDetails?.rua || result.companyData.rua || '';
+  const bairro = result.locationDetails?.bairro || result.companyData.bairro || '';
+  const cidade = result.locationDetails?.cidade || result.companyData.cidade || '';
+  const uf = result.locationDetails?.uf || result.companyData.uf || '';
+  const numero = result.companyData.numero || '';
+  const cep = result.locationDetails?.cep || result.companyData.endereco || '';
+
+  // Verificar se temos dados de endereço válidos
+  const hasAddressData = rua || bairro || cidade;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -28,7 +39,17 @@ export function CompanyDataSummary({ result }: CompanyDataSummaryProps) {
               <MapPin className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Localização</p>
-                <p className="font-semibold text-gray-800 dark:text-gray-200">CEP: {result.companyData.endereco}</p>
+                <div className="font-semibold text-gray-800 dark:text-gray-200">
+                  {hasAddressData ? (
+                    <>
+                      <p>{rua}{numero ? `, ${numero}` : ''}</p>
+                      <p className="text-sm font-normal">{bairro}{bairro && cidade ? ' - ' : ''}{cidade}{uf ? `/${uf}` : ''}</p>
+                    </>
+                  ) : (
+                    <p>Endereço não disponível</p>
+                  )}
+                  <p className="text-xs text-gray-500 font-normal">CEP: {cep}</p>
+                </div>
               </div>
             </div>
             <div className="flex items-center space-x-3">

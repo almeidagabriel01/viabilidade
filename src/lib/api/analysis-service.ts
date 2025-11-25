@@ -17,6 +17,7 @@ async function callBackendAPI(companyData: CompanyData): Promise<BackendAnalysis
       cnae: companyData.cnae,
       naturezaJuridica: companyData.naturezaJuridica,
       qualificacaoDoResponsavel: companyData.qualificacaoDoResponsavel,
+      capitalInicial: companyData.capitalInicial,
       isMei: companyData.isMei
     }
   };
@@ -82,7 +83,21 @@ export function calculateResultType(pontuacao: number): { resultType: "positive"
   return { resultType, score };
 }
 
-export function createAnalysisResult(score: number, companyData: CompanyData, analysisDate: string = new Date().toISOString()): AnalysisResponse {
+export function createAnalysisResult(
+  score: number,
+  companyData: CompanyData,
+  analysisDate: string = new Date().toISOString(),
+  viabilidadeId?: number,
+  locationDetails?: {
+    cep: string;
+    rua: string;
+    bairro: string;
+    cidade: string;
+    uf: string;
+    latitude: string;
+    longitude: string;
+  }
+): AnalysisResponse {
   const { resultType } = calculateResultType(score / 100); // calculateResultType expects 0-1
 
   const resultConfigs = {
@@ -148,11 +163,24 @@ export function createAnalysisResult(score: number, companyData: CompanyData, an
     }
   };
 
+  // Se tivermos detalhes de localização, atualizamos o companyData
+  const updatedCompanyData = locationDetails ? {
+    ...companyData,
+    rua: locationDetails.rua,
+    bairro: locationDetails.bairro,
+    cidade: locationDetails.cidade,
+    uf: locationDetails.uf,
+    // Mantemos o número original ou definimos um padrão se não existir
+    numero: companyData.numero || "S/N"
+  } : companyData;
+
   return {
     result: resultConfigs[resultType],
-    companyData: companyData,
+    companyData: updatedCompanyData,
     analysisDate: analysisDate,
-    viabilityScore: score
+    viabilityScore: score,
+    viabilidadeId: viabilidadeId,
+    locationDetails: locationDetails
   };
 }
 
@@ -165,7 +193,13 @@ export async function analyzeViability(companyData: CompanyData): Promise<Analys
     const { score } = calculateResultType(backendResponse.data.resultado.pontuacao);
 
     // Criar objeto de resposta completo usando createAnalysisResult para consistência
-    return createAnalysisResult(score, companyData);
+    return createAnalysisResult(
+      score,
+      companyData,
+      undefined,
+      backendResponse.data.viabilidade_id,
+      backendResponse.data.localizacao
+    );
 
   } catch (error) {
     console.error('Erro na análise de viabilidade:', error);

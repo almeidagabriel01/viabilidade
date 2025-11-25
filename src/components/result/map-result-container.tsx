@@ -56,6 +56,8 @@ const MapComponent = dynamic(
           zoom={18}
           style={{ height: '300px', width: '100%' }}
           scrollWheelZoom={true}
+          fadeAnimation={false}
+          zoomAnimation={false}
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -90,8 +92,21 @@ export function MapResultContainer({ result }: MapResultContainerProps) {
   const [isLoadingMap, setIsLoadingMap] = useState(true);
   const mapContainerRef = useRef<HTMLDivElement>(null);
 
+  // Usar dados do locationDetails se disponível, senão usar companyData
+  const rua = result.locationDetails?.rua || result.companyData.rua || '';
+  const bairro = result.locationDetails?.bairro || result.companyData.bairro || '';
+  const cidade = result.locationDetails?.cidade || result.companyData.cidade || '';
+  const uf = result.locationDetails?.uf || result.companyData.uf || '';
+  const numero = result.companyData.numero || '';
+  const cep = result.locationDetails?.cep || result.companyData.endereco || '';
+
+  // Verificar se temos dados de endereço válidos
+  const hasAddressData = rua || bairro || cidade;
+
   // Monta o endereço completo
-  const fullAddress = `${result.companyData.numero} ${result.companyData.rua}, ${result.companyData.bairro}, ${result.companyData.cidade}, ${result.companyData.uf}, Brasil`;
+  const fullAddress = hasAddressData 
+    ? [rua, numero, bairro, cidade, uf, 'Brasil'].filter(Boolean).join(', ')
+    : `CEP: ${cep}, Brasil`;
 
   useEffect(() => {
     setIsClient(true);
@@ -101,11 +116,22 @@ export function MapResultContainer({ result }: MapResultContainerProps) {
   useEffect(() => {
     if (!isMapOpen || mapPosition) return;
 
+    // Se já temos detalhes de localização do backend, usar eles
+    if (result.locationDetails?.latitude && result.locationDetails?.longitude) {
+      const lat = parseFloat(result.locationDetails.latitude);
+      const lng = parseFloat(result.locationDetails.longitude);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        setMapPosition([lat, lng]);
+        setIsLoadingMap(false);
+        return;
+      }
+    }
+
     const geocodeAddress = async () => {
       setIsLoadingMap(true);
       try {
         // Usa ArcGIS Geocoding Service (Esri) - Geralmente mais preciso para números no Brasil
-        const searchQuery = `${result.companyData.rua}, ${result.companyData.numero}, ${result.companyData.bairro}, ${result.companyData.cidade}, ${result.companyData.uf}, Brasil`;
+        const searchQuery = `${rua}, ${numero}, ${bairro}, ${cidade}, ${uf}, Brasil`;
 
         const response = await fetch(
           `https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?` +
@@ -138,7 +164,7 @@ export function MapResultContainer({ result }: MapResultContainerProps) {
     };
 
     geocodeAddress();
-  }, [isMapOpen, fullAddress, mapPosition, result.companyData]);
+  }, [isMapOpen, fullAddress, mapPosition, rua, bairro, cidade, uf, numero, result.locationDetails]);
 
   const IconComponent = iconMap[result.result.icon as keyof typeof iconMap];
 
@@ -226,10 +252,10 @@ export function MapResultContainer({ result }: MapResultContainerProps) {
                     </div>
                     <div className="flex-1 min-w-0 text-left">
                       <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 truncate">
-                        {result.companyData.rua}, {result.companyData.numero}
+                        {hasAddressData ? `${rua}${numero ? `, ${numero}` : ''}` : `CEP: ${cep}`}
                       </p>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {result.companyData.bairro} - {result.companyData.cidade}/{result.companyData.uf}
+                        {hasAddressData ? `${bairro}${bairro && cidade ? ' - ' : ''}${cidade}${uf ? `/${uf}` : ''}` : 'Endereço sendo processado...'}
                       </p>
                     </div>
                   </div>
