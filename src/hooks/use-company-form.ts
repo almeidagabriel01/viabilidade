@@ -167,45 +167,45 @@ export function useCompanyForm() {
     try {
       setIsLoading(true);
 
-      // **SEMPRE salvar dados primeiro, antes de qualquer verificação**
+      // Salvar dados temporários para fallback
       storeFormData(data);
       setCurrentAnalysisId(newAnalysisId);
       storeAnalysisData(newAnalysisId, data);
 
-      // Criar análise inicial (será atualizada com score depois)
-      const initialAnalysis = {
-        id: newAnalysisId,
-        titulo: `CEP: ${data.endereco}`,
-        cnae: data.cnae,
-        endereco: data.endereco,
-        cidade: "",
-        uf: "",
-        status: "completa" as const,
-        score: 0, // Será atualizado depois
-        dataAnalise: new Date().toISOString(),
-        dataAtualizacao: new Date().toISOString(),
-        dadosCompletos: true,
-      };
-      storeAnalysis(initialAnalysis);
+      console.log('💾 Dados temporários salvos com ID:', newAnalysisId);
 
-      console.log('💾 Dados salvos com ID:', newAnalysisId);
-
-      // Tentar executar análise de viabilidade para obter o score
+      // Tentar executar análise de viabilidade
       try {
         const analysisResponse = await analyzeViability(data);
         const viabilityScore = analysisResponse.viabilityScore ?? 0;
 
-        // Atualizar análise com o score obtido
-        const updatedAnalysis = {
-          ...initialAnalysis,
-          score: viabilityScore,
+        // Se o backend retornou um viabilidade_id, a análise foi salva com sucesso
+        // Não precisamos mais manter no localStorage
+        if (analysisResponse.viabilidadeId) {
+          console.log('✅ Análise salva no backend com ID:', analysisResponse.viabilidadeId);
+          
+          // Navegar usando o ID do backend
+          router.push(`/resultado?analysisId=${analysisResponse.viabilidadeId}`);
+          return;
+        }
+
+        // Se não temos viabilidade_id, salvar temporariamente no localStorage
+        const tempAnalysis = {
+          id: newAnalysisId,
+          titulo: `CEP: ${data.endereco}`,
+          cnae: data.cnae,
+          endereco: data.endereco,
           cidade: analysisResponse.locationDetails?.cidade || "",
           uf: analysisResponse.locationDetails?.uf || "",
+          status: "completa" as const,
+          score: viabilityScore,
+          dataAnalise: new Date().toISOString(),
           dataAtualizacao: new Date().toISOString(),
+          dadosCompletos: true,
         };
-        storeAnalysis(updatedAnalysis);
+        storeAnalysis(tempAnalysis);
 
-        // Se o backend retornou detalhes de localização, atualizar os dados da análise
+        // Se o backend retornou detalhes de localização, atualizar os dados
         if (analysisResponse.locationDetails) {
           const updatedCompanyData: CompanyData = {
             ...data,
@@ -216,25 +216,58 @@ export function useCompanyForm() {
           };
           storeAnalysisData(newAnalysisId, updatedCompanyData);
           
-          // Armazenar também as coordenadas no localStorage
+          // Armazenar coordenadas
           localStorage.setItem(`analysis_location_${newAnalysisId}`, JSON.stringify({
             latitude: analysisResponse.locationDetails.latitude,
             longitude: analysisResponse.locationDetails.longitude,
           }));
         }
 
-        console.log('✅ Análise atualizada com score:', viabilityScore);
+        console.log('✅ Análise temporária criada com score:', viabilityScore);
+        router.push(`/resultado?analysisId=${newAnalysisId}`);
       } catch (apiError) {
-        console.warn('⚠️ Erro ao chamar API, mas dados foram salvos:', apiError);
-        // Continua mesmo se a API falhar - os dados já foram salvos
+        console.warn('⚠️ Erro ao chamar API:', apiError);
+        
+        // Manter análise incompleta no localStorage para o usuário poder continuar depois
+        const incompleteAnalysis = {
+          id: newAnalysisId,
+          titulo: `CEP: ${data.endereco}`,
+          cnae: data.cnae,
+          endereco: data.endereco,
+          cidade: "",
+          uf: "",
+          status: "incompleta" as const,
+          dataAnalise: new Date().toISOString(),
+          dataAtualizacao: new Date().toISOString(),
+          dadosCompletos: true,
+        };
+        storeAnalysis(incompleteAnalysis);
+        
+        // Ainda assim tentar mostrar o resultado (pode falhar)
+        router.push(`/resultado?analysisId=${newAnalysisId}`);
       }
-
-      // Navegar para resultado com o ID (sempre, mesmo se API falhou)
-      router.push(`/resultado?analysisId=${newAnalysisId}`);
     } catch (error) {
       console.error('❌ Erro ao enviar formulário:', error);
-      // Mesmo em erro, navegar com o ID para mostrar os dados que foram preenchidos
-      router.push(`/resultado?analysisId=${newAnalysisId}`);
+      
+      // Em caso de erro, manter como incompleta
+      const currentId = getCurrentAnalysisId();
+      if (currentId) {
+        const incompleteAnalysis = {
+          id: currentId,
+          titulo: `CEP: ${data.endereco}`,
+          cnae: data.cnae,
+          endereco: data.endereco,
+          cidade: "",
+          uf: "",
+          status: "incompleta" as const,
+          dataAnalise: new Date().toISOString(),
+          dataAtualizacao: new Date().toISOString(),
+          dadosCompletos: true,
+        };
+        storeAnalysis(incompleteAnalysis);
+      }
+      
+      router.push(`/resultado?analysisId=${currentId || newAnalysisId}`);
     } finally {
       setIsLoading(false);
     }

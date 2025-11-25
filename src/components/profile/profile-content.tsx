@@ -13,8 +13,6 @@ import { StatsTab } from "./stats-tab";
 import { useAnalyses } from "@/hooks/use-analyses";
 import { useAuth } from "@/contexts/auth-context";
 import { fetchUserData } from "@/lib/api/user-service";
-import { deleteAnalysis } from "@/lib/storage/analysis-storage";
-import { toast } from "react-toastify";
 
 export function ProfileContent() {
   const { user: authUser } = useAuth();
@@ -65,17 +63,13 @@ export function ProfileContent() {
     return () => {
       isMounted = false;
     };
-  }, [authUser?.id, authUser?.name, authUser?.email]); // Dependências mais específicas para evitar loops
+  }, [authUser?.id, authUser?.name, authUser?.email]);
 
-  const { analyses, isLoading: analysesLoading, refreshAnalyses } = useAnalyses();
+  const { analyses, isLoading: analysesLoading, deleteAnalysis } = useAnalyses();
   const [activeTab, setActiveTab] = useState<string>("info");
 
-  const handleDeleteAnalysis = (id: string) => {
-    if (confirm("Tem certeza que deseja excluir esta análise?")) {
-      deleteAnalysis(id);
-      toast.success("Análise excluída com sucesso!");
-      refreshAnalyses();
-    }
+  const handleDeleteAnalysis = async (id: string) => {
+    await deleteAnalysis(id);
   };
 
   return (

@@ -48,7 +48,7 @@ export function CompanyDataSummary({ result }: CompanyDataSummaryProps) {
                   ) : (
                     <p>Endereço não disponível</p>
                   )}
-                  <p className="text-xs text-gray-500 font-normal">CEP: {cep}</p>
+                  {cep && <p className="text-xs text-gray-500 font-normal">CEP: {cep}</p>}
                 </div>
               </div>
             </div>

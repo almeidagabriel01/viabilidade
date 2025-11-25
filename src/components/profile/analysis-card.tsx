@@ -5,6 +5,15 @@ import { MapPin, Calendar, ChevronRight, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Badge } from "../ui/badge";
 import { Button } from "@/components/ui/button";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useState } from "react";
 import type { Analysis } from "../../types/profile";
 import {
   getStatusColor,
@@ -21,6 +30,7 @@ interface AnalysisCardProps {
 
 export function AnalysisCard({ analysis, onDelete }: AnalysisCardProps) {
   const router = useRouter();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const handleViewResult = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -38,7 +48,14 @@ export function AnalysisCard({ analysis, onDelete }: AnalysisCardProps) {
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (onDelete) onDelete();
+    setIsDeleteDialogOpen(true);
+  }
+
+  const confirmDelete = () => {
+    if (onDelete) {
+      onDelete();
+      setIsDeleteDialogOpen(false);
+    }
   }
 
   return (
@@ -72,9 +89,10 @@ export function AnalysisCard({ analysis, onDelete }: AnalysisCardProps) {
             </div>
           </div>
 
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 break-words">
-            {analysis.cnae}
-          </p>
+          <div className="mb-2">
+            <span className="text-xs text-gray-500 dark:text-gray-500">CNAE: </span>
+            <span className="text-sm text-gray-600 dark:text-gray-400 break-words">{analysis.cnae}</span>
+          </div>
 
           <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0 text-xs text-gray-500 dark:text-gray-400">
             <div className="flex items-center space-x-1">
@@ -132,6 +150,33 @@ export function AnalysisCard({ analysis, onDelete }: AnalysisCardProps) {
           <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors flex-shrink-0" />
         </div>
       </div>
+
+      {/* Modal de Confirmação de Exclusão */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Confirmar Exclusão</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja excluir a análise &quot;{analysis.titulo}&quot;?
+              Esta ação não pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+            >
+              Excluir
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }

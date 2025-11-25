@@ -1,53 +1,133 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Analysis } from "@/types/profile";
-import { getAnalyses, subscribeToAnalysisChanges } from "@/lib/storage/analysis-storage";
+import { 
+  fetchAnalysisHistory, 
+  deleteAnalysisFromBackend,
+  HistoryAnalysis 
+} from "@/lib/api/history-service";
+import { 
+  getAnalyses as getLocalAnalyses, 
+  subscribeToAnalysisChanges,
+  deleteAnalysis as deleteLocalAnalysis 
+} from "@/lib/storage/analysis-storage";
+import { toast } from "react-toastify";
+
+// Converte análise do backend para o formato do frontend
+function convertBackendAnalysis(backendAnalysis: HistoryAnalysis): Analysis {
+  // O campo 'local' vem do backend e pode ser CEP ou endereço completo
+  const isCep = /^\d{5}-?\d{3}$/.test(backendAnalysis.local);
+  const titulo = isCep ? `CEP: ${backendAnalysis.local}` : backendAnalysis.local;
+  
+  return {
+    id: String(backendAnalysis.id),
+    titulo: titulo,
+    cnae: backendAnalysis.cnae,
+    endereco: backendAnalysis.local,
+    cidade: "",
+    uf: "",
+    status: "completa" as const,
+    score: Math.round(backendAnalysis.pontuacao * 100),
+    dataAnalise: backendAnalysis.data_analise,
+    dataAtualizacao: backendAnalysis.data_analise,
+    dadosCompletos: true,
+  };
+}
 
 export function useAnalyses() {
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const isFetchingRef = React.useRef(false);
 
-  useEffect(() => {
-    // Carregar análises iniciais
-    const loadAnalyses = () => {
+  const loadAnalyses = useCallback(async () => {
+    // Evitar chamadas duplicadas usando ref
+    if (isFetchingRef.current) {
+      console.log('Chamada duplicada evitada');
+      return;
+    }
+    
+    isFetchingRef.current = true;
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Buscar análises do backend (completas)
+      const backendAnalyses = await fetchAnalysisHistory();
+      const convertedBackendAnalyses = backendAnalyses.map(convertBackendAnalysis);
+
+      // Buscar análises locais (apenas incompletas)
+      const localAnalyses = getLocalAnalyses();
+      const incompleteLocalAnalyses = localAnalyses.filter(a => a.status === "incompleta");
+
+      // Combinar: análises do backend + análises locais incompletas
+      const allAnalyses = [...convertedBackendAnalyses, ...incompleteLocalAnalyses];
+
+      // Ordenar por data (mais recente primeiro)
+      const sortedAnalyses = allAnalyses.sort((a, b) =>
+        new Date(b.dataAtualizacao).getTime() - new Date(a.dataAtualizacao).getTime()
+      );
+
+      setAnalyses(sortedAnalyses);
+    } catch (err) {
+      console.error('Erro ao carregar análises:', err);
+      setError('Erro ao carregar análises');
+      
+      // Em caso de erro, tentar carregar apenas do localStorage
       try {
-        const storedAnalyses = getAnalyses();
-        // Ordenar por data de atualização (mais recente primeiro)
-        const sortedAnalyses = storedAnalyses.sort((a, b) =>
+        const localAnalyses = getLocalAnalyses();
+        const sortedAnalyses = localAnalyses.sort((a, b) =>
           new Date(b.dataAtualizacao).getTime() - new Date(a.dataAtualizacao).getTime()
         );
         setAnalyses(sortedAnalyses);
-      } catch (error) {
-        console.error('Erro ao carregar análises:', error);
+      } catch (localError) {
+        console.error('Erro ao carregar análises locais:', localError);
         setAnalyses([]);
-      } finally {
-        setIsLoading(false);
       }
-    };
+    } finally {
+      setIsLoading(false);
+      isFetchingRef.current = false;
+    }
+  }, []);
 
+  useEffect(() => {
     loadAnalyses();
 
-    // Subscrever a mudanças
-    const unsubscribe = subscribeToAnalysisChanges((updatedAnalyses) => {
-      const sortedAnalyses = updatedAnalyses.sort((a, b) =>
-        new Date(b.dataAtualizacao).getTime() - new Date(a.dataAtualizacao).getTime()
-      );
-      setAnalyses(sortedAnalyses);
+    // Subscrever a mudanças locais (para análises incompletas)
+    const unsubscribe = subscribeToAnalysisChanges(() => {
+      // Recarregar quando houver mudanças locais
+      loadAnalyses();
     });
 
     return unsubscribe;
-  }, []);
+  }, [loadAnalyses]);
 
-  const refreshAnalyses = () => {
+  const deleteAnalysis = useCallback(async (id: string) => {
     try {
-      const storedAnalyses = getAnalyses();
-      const sortedAnalyses = storedAnalyses.sort((a, b) =>
-        new Date(b.dataAtualizacao).getTime() - new Date(a.dataAtualizacao).getTime()
-      );
-      setAnalyses(sortedAnalyses);
-    } catch (error) {
-      console.error('Erro ao recarregar análises:', error);
-    }
-  };
+      // Verificar se é uma análise do backend (id numérico) ou local
+      const numericId = parseInt(id);
+      
+      if (!isNaN(numericId)) {
+        // É uma análise do backend - deletar via API
+        await deleteAnalysisFromBackend(numericId);
+      } else {
+        // É uma análise local - deletar do localStorage
+        deleteLocalAnalysis(id);
+        toast.success('Análise excluída com sucesso!');
+      }
 
-  return { analyses, isLoading, refreshAnalyses };
+      // Recarregar lista
+      await loadAnalyses();
+    } catch (err) {
+      console.error('Erro ao deletar análise:', err);
+      // O toast de erro já é mostrado no service
+    }
+  }, [loadAnalyses]);
+
+  return { 
+    analyses, 
+    isLoading, 
+    error,
+    refreshAnalyses: loadAnalyses,
+    deleteAnalysis 
+  };
 }
