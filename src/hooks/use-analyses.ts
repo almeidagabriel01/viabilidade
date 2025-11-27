@@ -14,15 +14,12 @@ import { toast } from "react-toastify";
 
 // Converte análise do backend para o formato do frontend
 function convertBackendAnalysis(backendAnalysis: HistoryAnalysis): Analysis {
-  // O campo 'local' vem do backend e pode ser CEP ou endereço completo
-  const isCep = /^\d{5}-?\d{3}$/.test(backendAnalysis.local);
-  const titulo = isCep ? `CEP: ${backendAnalysis.local}` : backendAnalysis.local;
-  
   return {
     id: String(backendAnalysis.id),
-    titulo: titulo,
+    titulo: backendAnalysis.local,
     cnae: backendAnalysis.cnae,
     endereco: backendAnalysis.local,
+    cep: backendAnalysis.cep,
     cidade: "",
     uf: "",
     status: "completa" as const,
@@ -38,6 +35,7 @@ export function useAnalyses() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const isFetchingRef = React.useRef(false);
+  const isDeletingRef = React.useRef(false);
 
   const loadAnalyses = useCallback(async () => {
     // Evitar chamadas duplicadas usando ref
@@ -102,6 +100,14 @@ export function useAnalyses() {
   }, [loadAnalyses]);
 
   const deleteAnalysis = useCallback(async (id: string) => {
+    // Evitar chamadas duplicadas
+    if (isDeletingRef.current) {
+      console.log('Delete já em andamento, ignorando chamada duplicada');
+      return;
+    }
+
+    isDeletingRef.current = true;
+
     try {
       // Verificar se é uma análise do backend (id numérico) ou local
       const numericId = parseInt(id);
@@ -120,6 +126,8 @@ export function useAnalyses() {
     } catch (err) {
       console.error('Erro ao deletar análise:', err);
       // O toast de erro já é mostrado no service
+    } finally {
+      isDeletingRef.current = false;
     }
   }, [loadAnalyses]);
 

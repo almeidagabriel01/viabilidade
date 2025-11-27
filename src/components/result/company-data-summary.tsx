@@ -1,25 +1,59 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Building2, DollarSign } from "lucide-react";
+import { Building2, DollarSign, UserCheck, Briefcase } from "lucide-react";
 import { AdvancedCard } from "@/components/ui/advanced-card";
 import { AnalysisResponse } from "@/types/company";
+import { fetchNaturezas, fetchQualificacoes, HelperItem } from "@/lib/api/helpers-service";
 
 interface CompanyDataSummaryProps {
   result: AnalysisResponse;
 }
 
-export function CompanyDataSummary({ result }: CompanyDataSummaryProps) {
-  // Usar dados do locationDetails se disponível, senão usar companyData
-  const rua = result.locationDetails?.rua || result.companyData.rua || '';
-  const bairro = result.locationDetails?.bairro || result.companyData.bairro || '';
-  const cidade = result.locationDetails?.cidade || result.companyData.cidade || '';
-  const uf = result.locationDetails?.uf || result.companyData.uf || '';
-  const numero = result.companyData.numero || '';
-  const cep = result.locationDetails?.cep || result.companyData.endereco || '';
+// Formata valor monetário
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(value);
+}
 
-  // Verificar se temos dados de endereço válidos
-  const hasAddressData = rua || bairro || cidade;
+export function CompanyDataSummary({ result }: CompanyDataSummaryProps) {
+  const [naturezaDescricao, setNaturezaDescricao] = useState<string>("");
+  const [qualificacaoDescricao, setQualificacaoDescricao] = useState<string>("");
+
+  useEffect(() => {
+    const loadDescricoes = async () => {
+      try {
+        // Buscar natureza jurídica
+        if (result.companyData.naturezaJuridica) {
+          const naturezas = await fetchNaturezas();
+          const natureza = naturezas.find(
+            (n: HelperItem) => Number(n.codigo.toString().replace(/\D/g, '')) === result.companyData.naturezaJuridica
+          );
+          if (natureza) {
+            setNaturezaDescricao(natureza.descricao);
+          }
+        }
+
+        // Buscar qualificação do responsável
+        if (result.companyData.qualificacaoDoResponsavel) {
+          const qualificacoes = await fetchQualificacoes();
+          const qualificacao = qualificacoes.find(
+            (q: HelperItem) => Number(q.codigo) === result.companyData.qualificacaoDoResponsavel
+          );
+          if (qualificacao) {
+            setQualificacaoDescricao(qualificacao.descricao);
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao carregar descrições:", error);
+      }
+    };
+
+    loadDescricoes();
+  }, [result.companyData.naturezaJuridica, result.companyData.qualificacaoDoResponsavel]);
 
   return (
     <motion.div
@@ -34,36 +68,53 @@ export function CompanyDataSummary({ result }: CompanyDataSummaryProps) {
             <Building2 className="w-5 h-5 text-gray-600 dark:text-gray-400 mr-2" />
             Dados da Análise
           </h3>
-          <div className="grid md:grid-cols-3 gap-4">
-            <div className="flex items-center space-x-3">
-              <MapPin className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Localização</p>
-                <div className="font-semibold text-gray-800 dark:text-gray-200">
-                  {hasAddressData ? (
-                    <>
-                      <p>{rua}{numero ? `, ${numero}` : ''}</p>
-                      <p className="text-sm font-normal">{bairro}{bairro && cidade ? ' - ' : ''}{cidade}{uf ? `/${uf}` : ''}</p>
-                    </>
-                  ) : (
-                    <p>Endereço não disponível</p>
-                  )}
-                  {cep && <p className="text-xs text-gray-500 font-normal">CEP: {cep}</p>}
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Building2 className="w-5 h-5 text-green-600 dark:text-green-400" />
-              <div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* CNAE */}
+            <div className="flex items-start space-x-3">
+              <Briefcase className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+              <div className="min-w-0">
                 <p className="text-sm text-gray-600 dark:text-gray-400">CNAE</p>
-                <p className="font-semibold text-gray-800 dark:text-gray-200">{result.companyData.cnae}</p>
+                <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm break-words">
+                  {result.companyData.cnae}
+                </p>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
-              <DollarSign className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-              <div>
+
+            {/* Natureza Jurídica */}
+            <div className="flex items-start space-x-3">
+              <Building2 className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+              <div className="min-w-0">
                 <p className="text-sm text-gray-600 dark:text-gray-400">Natureza Jurídica</p>
-                <p className="font-semibold text-gray-800 dark:text-gray-200">{result.companyData.naturezaJuridica}</p>
+                <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm break-words">
+                  {naturezaDescricao || `Código: ${result.companyData.naturezaJuridica}`}
+                </p>
+              </div>
+            </div>
+
+            {/* Capital Inicial */}
+            <div className="flex items-start space-x-3">
+              <DollarSign className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="text-sm text-gray-600 dark:text-gray-400">Capital Inicial</p>
+                <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm">
+                  {formatCurrency(result.companyData.capitalInicial)}
+                </p>
+              </div>
+            </div>
+
+            {/* Qualificação do Responsável / MEI */}
+            <div className="flex items-start space-x-3">
+              <UserCheck className="w-5 h-5 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {result.companyData.isMei ? "Tipo" : "Qualificação"}
+                </p>
+                <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm break-words">
+                  {result.companyData.isMei 
+                    ? "MEI - Microempreendedor Individual" 
+                    : qualificacaoDescricao || `Código: ${result.companyData.qualificacaoDoResponsavel}`
+                  }
+                </p>
               </div>
             </div>
           </div>

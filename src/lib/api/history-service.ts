@@ -8,6 +8,7 @@ export interface HistoryAnalysis {
   id: number;
   cnae: string;
   local: string;
+  cep: string;
   pontuacao: number;
   viavel: boolean;
   data_analise: string;

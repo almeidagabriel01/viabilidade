@@ -15,6 +15,7 @@ export interface Analysis {
   titulo: string;
   cnae: string;
   endereco: string;
+  cep?: string;
   cidade: string;
   uf: string;
   status: "completa" | "incompleta" | "processando";
