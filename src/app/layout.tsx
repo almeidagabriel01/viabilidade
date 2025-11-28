@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/auth-context";
+import { AnalysisProvider } from "@/contexts/analysis-context";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
 import "react-toastify/dist/ReactToastify.css";
@@ -41,7 +42,9 @@ export default function RootLayout({
         >
           <TooltipProvider>
             <AuthProvider>
-              {children}
+              <AnalysisProvider>
+                {children}
+              </AnalysisProvider>
             </AuthProvider>
           </TooltipProvider>
         </ThemeProvider>

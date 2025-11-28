@@ -192,11 +192,25 @@ export async function analyzeViability(companyData: CompanyData): Promise<Analys
     // Processar resposta
     const { score } = calculateResultType(backendResponse.data.resultado.pontuacao);
 
+    // Atualizar companyData com os dados retornados pelo backend
+    const updatedCompanyData: CompanyData = {
+      ...companyData,
+      cnae: backendResponse.data.empresa?.cnae || companyData.cnae,
+      naturezaJuridica: backendResponse.data.empresa?.naturezaJuridica || companyData.naturezaJuridica,
+      qualificacaoDoResponsavel: backendResponse.data.empresa?.qualificacaoDoResponsavel || companyData.qualificacaoDoResponsavel,
+      capitalInicial: backendResponse.data.empresa?.capitalInicial || companyData.capitalInicial,
+      isMei: backendResponse.data.empresa?.isMei ?? companyData.isMei,
+      rua: backendResponse.data.localizacao?.rua || companyData.rua,
+      bairro: backendResponse.data.localizacao?.bairro || companyData.bairro,
+      cidade: backendResponse.data.localizacao?.cidade || companyData.cidade,
+      uf: backendResponse.data.localizacao?.uf || companyData.uf,
+    };
+
     // Criar objeto de resposta completo usando createAnalysisResult para consistência
     return createAnalysisResult(
       score,
-      companyData,
-      undefined,
+      updatedCompanyData,
+      backendResponse.data.data_analise,
       backendResponse.data.viabilidade_id,
       backendResponse.data.localizacao
     );

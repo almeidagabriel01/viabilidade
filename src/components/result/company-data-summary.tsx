@@ -2,21 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Building2, DollarSign, UserCheck, Briefcase } from "lucide-react";
+import { Building2, UserCheck, Briefcase, Store } from "lucide-react";
 import { AdvancedCard } from "@/components/ui/advanced-card";
 import { AnalysisResponse } from "@/types/company";
 import { fetchNaturezas, fetchQualificacoes, HelperItem } from "@/lib/api/helpers-service";
 
 interface CompanyDataSummaryProps {
   result: AnalysisResponse;
-}
-
-// Formata valor monetário
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(value);
 }
 
 export function CompanyDataSummary({ result }: CompanyDataSummaryProps) {
@@ -91,29 +83,24 @@ export function CompanyDataSummary({ result }: CompanyDataSummaryProps) {
               </div>
             </div>
 
-            {/* Capital Inicial */}
+            {/* Período de Incubação MEI */}
             <div className="flex items-start space-x-3">
-              <DollarSign className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+              <Store className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
               <div className="min-w-0">
-                <p className="text-sm text-gray-600 dark:text-gray-400">Capital Inicial</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Período Incubação MEI</p>
                 <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm">
-                  {formatCurrency(result.companyData.capitalInicial)}
+                  {result.companyData.isMei ? "Sim" : "Não"}
                 </p>
               </div>
             </div>
 
-            {/* Qualificação do Responsável / MEI */}
+            {/* Qualificação do Responsável */}
             <div className="flex items-start space-x-3">
               <UserCheck className="w-5 h-5 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" />
               <div className="min-w-0">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {result.companyData.isMei ? "Tipo" : "Qualificação"}
-                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Qualificação</p>
                 <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm break-words">
-                  {result.companyData.isMei 
-                    ? "MEI - Microempreendedor Individual" 
-                    : qualificacaoDescricao || `Código: ${result.companyData.qualificacaoDoResponsavel}`
-                  }
+                  {qualificacaoDescricao || `Código: ${result.companyData.qualificacaoDoResponsavel}`}
                 </p>
               </div>
             </div>

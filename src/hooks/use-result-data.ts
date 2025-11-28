@@ -1,42 +1,63 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import { useState, useEffect, useRef } from "react";
 import { toast } from 'react-toastify';
-import { AnalysisResultType, AnalysisResponse, CompanyData } from "@/types/company";
-import { resultConfigs } from "@/lib/config/result-configs";
-import { analyzeViability, createAnalysisResult } from "@/lib/api/analysis-service";
-import { getFormData } from "@/lib/storage/form-data-storage";
-import { getAnalysisDataById } from "@/lib/storage/analysis-data-storage";
-import { getAnalysisById } from "@/lib/storage/analysis-storage";
+import { AnalysisResponse, CompanyData } from "@/types/company";
+import { createAnalysisResult } from "@/lib/api/analysis-service";
 import { fetchAnalysisDetail } from "@/lib/api/history-service";
-import { THRESHOLD_POSITIVE, THRESHOLD_MODERATE } from "@/lib/config/thresholds";
+import { useAnalysisContext } from "@/contexts/analysis-context";
 
-const DEBUG_RESULT_TYPE: AnalysisResultType | null = null; //'positive', 'negative', 'inadequate_use', 'excessive_use' e null
+interface UseResultDataParams {
+  source?: string | null;
+  analysisId?: string | null;
+  onAnalysisLoaded?: (viabilidadeId: number) => void;
+}
 
-export function useResultData(analysisId?: string) {
+export function useResultData({ source, analysisId, onAnalysisLoaded }: UseResultDataParams) {
   const [result, setResult] = useState<AnalysisResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const isFetchingRef = React.useRef(false);
-  const lastFetchedIdRef = React.useRef<string | undefined>(undefined);
+  const { freshAnalysis, clearFreshAnalysis } = useAnalysisContext();
+  const lastParamsRef = useRef<string>('');
 
   useEffect(() => {
+    // Criar uma chave única para os parâmetros atuais
+    const currentParams = `${source}-${analysisId}`;
+    
+    // Se os parâmetros são os mesmos, não recarregar
+    if (lastParamsRef.current === currentParams && result !== null) {
+      setIsLoading(false);
+      return;
+    }
+    
+    lastParamsRef.current = currentParams;
+
     const loadResult = async () => {
-      // Evitar chamadas duplicadas para o mesmo analysisId
-      if (isFetchingRef.current || lastFetchedIdRef.current === analysisId) {
-        console.log('Chamada duplicada evitada para analysisId:', analysisId);
-        return;
-      }
-
-      isFetchingRef.current = true;
-      lastFetchedIdRef.current = analysisId;
-
+      setIsLoading(true);
+      
       try {
-        // Verificar se é um ID numérico (análise do backend)
-        const numericId = analysisId ? parseInt(analysisId) : NaN;
-        const isBackendAnalysis = !isNaN(numericId);
+        // Caso 1: Análise recém-criada (source=new)
+        // Os dados já estão no contexto, não precisa chamar API
+        if (source === 'new' && freshAnalysis) {
+          console.log('✅ Usando análise recém-criada do contexto');
+          setResult(freshAnalysis);
+          
+          // Notificar o componente pai sobre o ID da análise para atualizar a URL
+          if (freshAnalysis.viabilidadeId && onAnalysisLoaded) {
+            onAnalysisLoaded(freshAnalysis.viabilidadeId);
+          }
+          
+          clearFreshAnalysis();
+          return;
+        }
 
-        if (isBackendAnalysis && analysisId) {
-          // Buscar detalhes da análise do backend
-          try {
+        // Caso 2: Acessando do histórico (analysisId é numérico)
+        // Precisa buscar os dados da API
+        if (analysisId) {
+          const numericId = parseInt(analysisId);
+          
+          if (!isNaN(numericId)) {
+            console.log('📡 Buscando análise do histórico:', numericId);
             const backendDetail = await fetchAnalysisDetail(numericId);
             
             // Converter score de 0-1 para 0-100
@@ -45,11 +66,11 @@ export function useResultData(analysisId?: string) {
             // Criar companyData a partir dos dados do backend
             const companyData: CompanyData = {
               endereco: backendDetail.localizacao.cep,
-              cnae: "", // Backend não retorna CNAE nos detalhes
-              isMei: false,
-              naturezaJuridica: 0,
-              qualificacaoDoResponsavel: 0,
-              capitalInicial: 0,
+              cnae: backendDetail.empresa?.cnae || "",
+              isMei: backendDetail.empresa?.isMei || false,
+              naturezaJuridica: backendDetail.empresa?.naturezaJuridica || 0,
+              qualificacaoDoResponsavel: backendDetail.empresa?.qualificacaoDoResponsavel || 0,
+              capitalInicial: backendDetail.empresa?.capitalInicial || 0,
               rua: backendDetail.localizacao.rua,
               bairro: backendDetail.localizacao.bairro,
               cidade: backendDetail.localizacao.cidade,
@@ -76,175 +97,24 @@ export function useResultData(analysisId?: string) {
 
             setResult(analysisResult);
             return;
-          } catch (backendError) {
-            console.warn('Erro ao buscar do backend, tentando localStorage:', backendError);
-            // Continuar para tentar carregar do localStorage
           }
         }
 
-        // Carregar do localStorage (análise local ou fallback)
-        let companyData: CompanyData | null = null;
-        let storedAnalysis = null;
-
-        if (analysisId) {
-          // Buscar dados específicos da análise por ID
-          const analysisData = getAnalysisDataById(analysisId);
-          storedAnalysis = getAnalysisById(analysisId);
-          companyData = analysisData;
-        } else {
-          // Usar dados do formulário mais recente
-          const formData = getFormData();
-          companyData = formData;
-        }
-
-        // Se não encontrou dados, retornar erro
-        if (!companyData) {
-          toast.error('Dados da análise não encontrados');
-          throw new Error('Dados da análise não encontrados');
-        }
-
-        // Tentar recuperar coordenadas armazenadas
-        let storedLocation: { latitude: string; longitude: string } | null = null;
-        if (analysisId) {
-          const locationData = localStorage.getItem(`analysis_location_${analysisId}`);
-          if (locationData) {
-            try {
-              storedLocation = JSON.parse(locationData);
-            } catch (e) {
-              console.warn('Erro ao recuperar coordenadas:', e);
-            }
-          }
-        }
-
-        if (DEBUG_RESULT_TYPE) {
-          const analysisResult: AnalysisResponse = {
-            result: resultConfigs[DEBUG_RESULT_TYPE],
-            companyData: companyData,
-            analysisDate: storedAnalysis?.dataAnalise || new Date().toISOString(),
-            viabilityScore: storedAnalysis?.score,
-            // Montar locationDetails se temos coordenadas ou dados de endereço
-            locationDetails: storedLocation ? {
-              cep: companyData.endereco,
-              rua: companyData.rua || '',
-              bairro: companyData.bairro || '',
-              cidade: companyData.cidade || '',
-              uf: companyData.uf || '',
-              latitude: storedLocation.latitude,
-              longitude: storedLocation.longitude,
-            } : (companyData.rua ? {
-              cep: companyData.endereco,
-              rua: companyData.rua || '',
-              bairro: companyData.bairro || '',
-              cidade: companyData.cidade || '',
-              uf: companyData.uf || '',
-              latitude: '',
-              longitude: '',
-            } : undefined)
-          };
-          setResult(analysisResult);
-        } else if (storedAnalysis?.score !== undefined) {
-          // Se já temos o score armazenado, não precisamos chamar a API novamente
-          
-          // Montar locationDetails se temos coordenadas ou dados de endereço
-          const locationDetails = storedLocation ? {
-            cep: companyData.endereco,
-            rua: companyData.rua || '',
-            bairro: companyData.bairro || '',
-            cidade: companyData.cidade || '',
-            uf: companyData.uf || '',
-            latitude: storedLocation.latitude,
-            longitude: storedLocation.longitude,
-          } : (companyData.rua ? {
-            cep: companyData.endereco,
-            rua: companyData.rua || '',
-            bairro: companyData.bairro || '',
-            cidade: companyData.cidade || '',
-            uf: companyData.uf || '',
-            latitude: '',
-            longitude: '',
-          } : undefined);
-          
-          const analysisResult = createAnalysisResult(
-            storedAnalysis.score,
-            companyData,
-            storedAnalysis.dataAnalise || new Date().toISOString(),
-            undefined,
-            locationDetails
-          );
-          setResult(analysisResult);
-        } else {
-          const analysisResult = await analyzeViability(companyData);
-
-          // Se temos uma análise armazenada com score, garantir que o tipo de resultado seja consistente
-          if (storedAnalysis?.score !== undefined) {
-            analysisResult.viabilityScore = storedAnalysis.score;
-
-            // Recalcular o tipo de resultado baseado no score armazenado
-            let correctResultType: "positive" | "moderate" | "negative";
-            if (storedAnalysis.score >= THRESHOLD_POSITIVE) {
-              correctResultType = "positive";
-            } else if (storedAnalysis.score >= THRESHOLD_MODERATE) {
-              correctResultType = "moderate";
-            } else {
-              correctResultType = "negative";
-            }
-
-            // Atualizar o resultado apenas se o tipo for diferente
-            if (analysisResult.result.type !== correctResultType &&
-              (correctResultType === 'positive' || correctResultType === 'moderate' || correctResultType === 'negative')) {
-              analysisResult.result = resultConfigs[correctResultType];
-            }
-          }
-
-          // Usar a data da análise armazenada se disponível
-          if (storedAnalysis?.dataAnalise) {
-            analysisResult.analysisDate = storedAnalysis.dataAnalise;
-          }
-
-          setResult(analysisResult);
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+        // Caso 3: Nenhum dado disponível
+        throw new Error('Dados da análise não encontrados');
+        
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+        console.error('❌ Erro ao carregar resultado:', errorMessage);
         toast.error(`Erro ao carregar resultado: ${errorMessage}`);
         setError(errorMessage);
-
-        // Tentar buscar dados como fallback
-        let companyData: CompanyData | null = null;
-        if (analysisId) {
-          companyData = getAnalysisDataById(analysisId);
-        }
-        if (!companyData) {
-          companyData = getFormData();
-        }
-
-        // Se ainda não tem dados, usar valores padrão
-        if (!companyData) {
-          companyData = {
-            endereco: "00000-000",
-            cnae: "0000-0-00",
-            isMei: false,
-            naturezaJuridica: 0,
-            qualificacaoDoResponsavel: 0,
-            capitalInicial: 0
-          };
-        }
-
-        const fallbackResult: AnalysisResponse = {
-          result: resultConfigs['inadequate_use'],
-          companyData: companyData,
-          analysisDate: new Date().toISOString(),
-          testCount: 1,
-          maxTests: 2
-        };
-        setResult(fallbackResult);
       } finally {
         setIsLoading(false);
-        isFetchingRef.current = false;
       }
     };
 
     loadResult();
-  }, [analysisId]);
+  }, [source, analysisId, freshAnalysis, clearFreshAnalysis, onAnalysisLoaded, result]);
 
   return { result, isLoading, error };
 }

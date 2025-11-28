@@ -119,6 +119,13 @@ export interface BackendAnalysisResponse {
       latitude: string;
       longitude: string;
     };
+    empresa: {
+      cnae: string;
+      naturezaJuridica: number;
+      qualificacaoDoResponsavel: number;
+      capitalInicial: number;
+      isMei: boolean;
+    };
     data_analise: string;
   };
   code: number;

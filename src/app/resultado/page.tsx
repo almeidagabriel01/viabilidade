@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Suspense } from "react";
+import { Suspense, useCallback } from "react";
 import MainLayout from "@/components/layout/main-layout";
 import { PageTransition } from "@/components/layout/page-transition";
 import { LoadingState } from "@/components/result/loading-state";
@@ -17,8 +17,16 @@ import { ProtectedRoute } from "@/components/auth/protected-route";
 function ResultPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const source = searchParams.get('source');
   const analysisId = searchParams.get('analysisId');
-  const { result, isLoading } = useResultData(analysisId || undefined);
+  
+  // Callback para atualizar a URL quando a análise for carregada
+  const handleAnalysisLoaded = useCallback((viabilidadeId: number) => {
+    // Atualizar a URL sem recarregar a página, substituindo source=new pelo analysisId
+    window.history.replaceState(null, '', `/resultado?analysisId=${viabilidadeId}`);
+  }, []);
+  
+  const { result, isLoading } = useResultData({ source, analysisId, onAnalysisLoaded: handleAnalysisLoaded });
 
   const handleNewAnalysis = () => {
     router.push('/uso-modelo');
@@ -44,14 +52,7 @@ function ResultPageContent() {
             transition={{ duration: 0.6 }}
           >
             <ResultHeader result={result} onBackToForm={handleBackToForm} />
-            
-            {/* Mapa e Resultado Combinados */}
-            {result.result.type !== 'inadequate_use' && result.result.type !== 'excessive_use' ? (
-              <MapResultContainer result={result} />
-            ) : (
-              <MapResultContainer result={result} />
-            )}
-            
+            <MapResultContainer result={result} />
             <DetailsRecommendations result={result} />
             <CompanyDataSummary result={result} />
             <ActionButtons result={result} onNewAnalysis={handleNewAnalysis} />

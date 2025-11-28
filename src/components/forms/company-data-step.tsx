@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { CurrencyInput } from "@/components/ui/currency-input";
 import { GenericSelect } from "./generic-select";
 import { CNAESelect } from "./cnae-select";
 import { Control } from "react-hook-form";
@@ -66,7 +65,7 @@ export function CompanyDataStep({ control }: CompanyDataStepProps) {
         />
       </div>
 
-      {/* Linha 2: Qualificação e Capital */}
+      {/* Linha 2: Qualificação e MEI */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField<CompanyFormData>
           control={control}
@@ -89,18 +88,21 @@ export function CompanyDataStep({ control }: CompanyDataStepProps) {
 
         <FormField<CompanyFormData>
           control={control}
-          name="capitalInicial"
+          name="isMei"
           render={({ field }) => (
             <FormItem className="space-y-2">
               <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Capital Inicial (R$) *
+                Período de incubação MEI
               </FormLabel>
               <FormControl>
-                <CurrencyInput
-                  placeholder="R$ 0,00"
-                  value={field.value as number}
-                  onChange={field.onChange}
-                  className="w-full h-14 px-4 text-left font-normal bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 rounded-2xl transition-all duration-300 focus-visible:shadow-lg focus-visible:border-blue-500 dark:focus-visible:border-blue-400 focus-visible:ring-4 focus-visible:ring-blue-500/10 dark:focus-visible:ring-blue-400/10 focus-visible:outline-none text-base text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                <GenericSelect
+                  value={field.value ? "true" : "false"}
+                  onValueChange={(value) => field.onChange(value === "true")}
+                  options={[
+                    { value: "true", label: "Sim" },
+                    { value: "false", label: "Não" }
+                  ]}
+                  placeholder="Selecione..."
                 />
               </FormControl>
               <FormMessage />
@@ -108,31 +110,6 @@ export function CompanyDataStep({ control }: CompanyDataStepProps) {
           )}
         />
       </div>
-
-      {/* Linha 3: MEI */}
-      <FormField<CompanyFormData>
-        control={control}
-        name="isMei"
-        render={({ field }) => (
-          <FormItem className="space-y-2">
-            <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Período de incubação MEI
-            </FormLabel>
-            <FormControl>
-              <GenericSelect
-                value={field.value ? "true" : "false"}
-                onValueChange={(value) => field.onChange(value === "true")}
-                options={[
-                  { value: "true", label: "Sim" },
-                  { value: "false", label: "Não" }
-                ]}
-                placeholder="Selecione..."
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
     </motion.div>
   );
 }
